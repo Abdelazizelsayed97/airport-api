@@ -1,0 +1,223 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type AirLine {
+  country: String!
+  id: Int!
+  name: String!
+}
+
+type Book {
+  flightNumber: String!
+  id: Int!
+  seatNumber: String!
+  user: User!
+}
+
+input CreateAirLineInput {
+  country: String!
+  name: String!
+}
+
+input CreateBookInput {
+  flightNumber: String!
+  seatNumber: Int!
+}
+
+input CreateEmployeeInput {
+  name: String!
+  role: String!
+  status: String!
+}
+
+input CreateFightStaffInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+input CreateFlightMangementInput {
+  airline: String!
+  arrival_time: Timestamp!
+  available_seats: Float!
+  departure_airport: String!
+  departure_time: Timestamp!
+  destination_airport: String!
+  flight_number: String!
+  flight_status: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Employee {
+  assigned_flights: [FlightStaff!]!
+  email: String!
+
+  """Example field (placeholder)"""
+  id: Int!
+  name: String!
+  role: staff_Roles!
+}
+
+type FlightMangementEntity {
+  airline: String!
+  arrival_time: DateTime!
+  assigned: FlightStaff!
+  available_seats: Int!
+  departure_airport: String!
+  departure_time: DateTime!
+  destination_airport: String!
+  flight_number: String!
+  flight_status: flight_status!
+  id: Int!
+  takenSeats: Int
+}
+
+type FlightStaff {
+  employees: [Employee!]!
+  flight: FlightMangementEntity!
+  id: Int!
+  name: String!
+}
+
+input FlightsFilterInput {
+  airLine: String!
+  name: String!
+  passport_number: String!
+}
+
+type Mutation {
+  auth(createAuthInput: SignInDto!): User!
+  createAirLine(createAirLineInput: CreateAirLineInput!): AirLine!
+  createBook(createBookInput: CreateBookInput!): Book!
+  createEmployee(createEmployeeInput: CreateEmployeeInput!): Employee!
+  createFightStaff(createFightStaffInput: CreateFightStaffInput!): FlightStaff!
+  createFlight(createFlightMangementInput: CreateFlightMangementInput!): FlightMangementEntity!
+  deleteUser(id: Int!): User!
+  login(createAuthInput: SignInDto!): User!
+  removeAirLine(id: Int!): AirLine!
+  removeBook(id: Int!): Book!
+  removeEmployee(id: Int!): Employee!
+  removeFightStaff(id: Int!): FlightStaff!
+  removeFlightMangement(id: Int!): FlightMangementEntity!
+  signIn(signInDto: SignInDto!): User!
+  signUp(registerInput: SignUpDto!): User!
+  updateAirLine(updateAirLineInput: UpdateAirLineInput!): AirLine!
+  updateBook(updateBookInput: UpdateBookInput!): Book!
+  updateEmployee(updateEmployeeInput: UpdateEmployeeInput!): Employee!
+  updateFightStaff(updateFightStaffInput: UpdateFightStaffInput!): FlightStaff!
+  updateFlightMangement(updateFlightMangementInput: UpdateFlightMangementInput!): FlightMangementEntity!
+  updateUser(updateUserInput: UpdateUserInput!): User!
+}
+
+input PaginationInput {
+  limit: Int! = 20
+  page: Int! = 1
+}
+
+type Query {
+  airLine(id: Int!): AirLine!
+  airLines: [AirLine!]!
+  book(id: Int!): Book!
+  employee(id: Int!): Employee!
+  employees: [Employee!]!
+  fightStaff(id: Int!): FlightStaff!
+  flightMangementById(id: Int!): FlightMangementEntity!
+  getAllFlights(filter: FlightsFilterInput, pagination: PaginationInput): [FlightMangementEntity!]
+  getUserById(id: Int!): User!
+  users(paginate: PaginationInput!): [User!]!
+}
+
+input SignInDto {
+  email: String!
+  password: String!
+}
+
+input SignUpDto {
+  email: String!
+  name: String!
+  passportNumber: String!
+  password: String!
+  role: UserBasedRole!
+}
+
+"""
+`Date` type as integer. Type represents date and time as number of milliseconds from start of UNIX epoch.
+"""
+scalar Timestamp
+
+input UpdateAirLineInput {
+  country: String
+  id: Int!
+  name: String
+}
+
+input UpdateBookInput {
+  flightNumber: String
+  id: Int!
+  seatNumber: Int
+}
+
+input UpdateEmployeeInput {
+  id: Int!
+  name: String
+  role: String
+  status: String
+}
+
+input UpdateFightStaffInput {
+  """Example field (placeholder)"""
+  exampleField: Int
+  id: Int!
+}
+
+input UpdateFlightMangementInput {
+  airline: String
+  arrival_time: Timestamp
+  available_seats: Float
+  departure_airport: String
+  departure_time: Timestamp
+  destination_airport: String
+  flight_number: String
+  flight_status: String
+  id: Int!
+}
+
+input UpdateUserInput {
+  email: String
+  id: Int!
+  name: String
+  passportNumber: String
+  password: String
+  role: UserBasedRole
+}
+
+type User {
+  bookingList: [Book!]
+  id: Int!
+  name: String!
+  password: String!
+  role: UserBasedRole!
+}
+
+enum UserBasedRole {
+  admin
+  passenger
+  staff
+}
+
+"""The status of the flight"""
+enum flight_status {
+  canceled
+  delayed
+  on_time
+}
+
+enum staff_Roles {
+  crew
+  pilot
+  security
+}
