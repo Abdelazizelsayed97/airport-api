@@ -7,7 +7,6 @@ import { UserBasedRole } from 'src/enums/user.roles';
 @ObjectType()
 export class SignUpDto {
   @Field(() => String)
-
   passportNumber: string;
   @Field(() => String)
   email: string;

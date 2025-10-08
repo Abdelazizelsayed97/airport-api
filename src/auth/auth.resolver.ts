@@ -9,12 +9,12 @@ export class AuthResolver {
   constructor(private readonly authService: AuthService) {}
 
   @Mutation(() => User, { name: 'login' })
-  signIn(@Args('createAuthInput') createAuthInput: SignInDto) {
+  signIn(@Args('loginInput') createAuthInput: SignInDto) {
     return this.authService.signIn();
   }
 
   @Mutation(() => User, { name: 'auth' })
-  signUp(@Args('createAuthInput') createAuthInput: SignInDto) {
+  signUp(@Args('registerInput') createAuthInput: SignInDto) {
     return this.authService.signUp();
   }
 }

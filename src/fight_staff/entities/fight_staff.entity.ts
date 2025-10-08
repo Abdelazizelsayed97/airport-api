@@ -2,10 +2,8 @@ import { ObjectType, Field, Int } from '@nestjs/graphql';
 import { Employee } from 'src/employees/entities/employee.entity';
 import FlightMangementEntity from 'src/flight_mangement/entities/flight_mangement.entity';
 import {
-  Column,
+
   Entity,
-  JoinTable,
-  ManyToMany,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -37,3 +35,4 @@ export class FlightStaff {
   @OneToOne(() => FlightMangementEntity, (flight) => flight.assigned)
   flight?: FlightMangementEntity;
 }
+  

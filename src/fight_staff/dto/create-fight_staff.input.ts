@@ -16,3 +16,4 @@ export class CreateFightStaffInput {
   @Field(() => CreateEmployeeInput)
   security: CreateEmployeeInput;
 }
+  

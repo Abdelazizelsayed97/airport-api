@@ -17,6 +17,9 @@ export class User {
   id: number;
   @Field(() => String)
   @Column()
+  email: string;
+  @Field(() => String)
+  @Column()
   name: string;
   @Field(() => UserBasedRole)
   @Column()

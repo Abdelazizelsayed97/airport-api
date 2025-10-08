@@ -26,19 +26,23 @@ input CreateBookInput {
 }
 
 input CreateEmployeeInput {
+  assigned_flights: CreateFightStaffInput
+  email: String!
   name: String!
-  role: String!
-  status: String!
+  role: staff_Roles!
 }
 
 input CreateFightStaffInput {
-  """Example field (placeholder)"""
-  exampleField: Int!
+  crew: CreateEmployeeInput!
+  ground_staff: CreateEmployeeInput!
+  pilot: CreateEmployeeInput!
+  security: CreateEmployeeInput!
 }
 
 input CreateFlightMangementInput {
   airline: String!
   arrival_time: Timestamp!
+  assignedStaff: CreateFightStaffInput!
   available_seats: Float!
   departure_airport: String!
   departure_time: Timestamp!
@@ -46,11 +50,6 @@ input CreateFlightMangementInput {
   flight_number: String!
   flight_status: String!
 }
-
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
 
 type Employee {
   assigned_flights: [FlightStaff!]!
@@ -64,11 +63,11 @@ type Employee {
 
 type FlightMangementEntity {
   airline: String!
-  arrival_time: DateTime!
+  arrival_time: Timestamp!
   assigned: FlightStaff!
   available_seats: Int!
   departure_airport: String!
-  departure_time: DateTime!
+  departure_time: Timestamp!
   destination_airport: String!
   flight_number: String!
   flight_status: flight_status!
@@ -77,10 +76,12 @@ type FlightMangementEntity {
 }
 
 type FlightStaff {
-  employees: [Employee!]!
-  flight: FlightMangementEntity!
+  crew: Employee!
+  flight: FlightMangementEntity
+  ground_staff: Employee!
   id: Int!
-  name: String!
+  pilot: Employee!
+  security: Employee!
 }
 
 input FlightsFilterInput {
@@ -90,14 +91,14 @@ input FlightsFilterInput {
 }
 
 type Mutation {
-  auth(createAuthInput: SignInDto!): User!
+  auth(registerInput: SignInDto!): User!
   createAirLine(createAirLineInput: CreateAirLineInput!): AirLine!
   createBook(createBookInput: CreateBookInput!): Book!
   createEmployee(createEmployeeInput: CreateEmployeeInput!): Employee!
   createFightStaff(createFightStaffInput: CreateFightStaffInput!): FlightStaff!
   createFlight(createFlightMangementInput: CreateFlightMangementInput!): FlightMangementEntity!
   deleteUser(id: Int!): User!
-  login(createAuthInput: SignInDto!): User!
+  login(loginInput: SignInDto!): User!
   removeAirLine(id: Int!): AirLine!
   removeBook(id: Int!): Book!
   removeEmployee(id: Int!): Employee!
@@ -162,21 +163,25 @@ input UpdateBookInput {
 }
 
 input UpdateEmployeeInput {
+  assigned_flights: CreateFightStaffInput
+  email: String
   id: Int!
   name: String
-  role: String
-  status: String
+  role: staff_Roles
 }
 
 input UpdateFightStaffInput {
-  """Example field (placeholder)"""
-  exampleField: Int
+  crew: CreateEmployeeInput
+  ground_staff: CreateEmployeeInput
   id: Int!
+  pilot: CreateEmployeeInput
+  security: CreateEmployeeInput
 }
 
 input UpdateFlightMangementInput {
   airline: String
   arrival_time: Timestamp
+  assignedStaff: CreateFightStaffInput
   available_seats: Float
   departure_airport: String
   departure_time: Timestamp
@@ -197,6 +202,7 @@ input UpdateUserInput {
 
 type User {
   bookingList: [Book!]
+  email: String!
   id: Int!
   name: String!
   password: String!

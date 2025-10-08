@@ -26,20 +26,30 @@ export class AuthServices {
     //   }),
     //   ...(createUserInput.email && { email: createUserInput.email }),
     // });
+    const isUserExist = await this.userRepository.findOne({
+      where: { email: createUserInput.email },
+    });
+    if (isUserExist) {
+      throw new Error('User already exists with this email');
+    }
     const user = this.userRepository.create(createUserInput);
     await this.userRepository.save(user);
     return user;
   }
 
   async signIn(input: SignInDto): Promise<User> {
-    // const user = await this.userRepository.findOne({ where: { email: input.email } });
-    return {
-      id: 11,
-      name: 'hfb',
-      password: 'fdds',
-      role: UserBasedRole.passenger,
-      bookingList: [],
-    };
+    const user = await this.userRepository.findOne({
+      where: { email: input.email },
+    });
+    console.log(user);
+    if (!user) {
+      throw new Error("This user doesn't exist");
+    }
+    if (user.password !== input.password) {
+      throw new Error('Invalid credentials');
+    } else {
+      return user;
+    }
   }
 
   async getAllUsers(pagination: PaginationInput): Promise<User[]> {
