@@ -1,13 +1,7 @@
 import { ObjectType, Field, Int, registerEnumType } from '@nestjs/graphql';
 import { Book } from 'src/book/entities/book.entity';
-import { UserBasedRole } from 'src/enums/user.roles';
-import {
-  Column,
-  Entity,
-  ManyToMany,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { UsersRoles } from 'src/enums/user.roles';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ synchronize: true })
 @ObjectType()
@@ -21,9 +15,13 @@ export class User {
   @Field(() => String)
   @Column()
   name: string;
-  @Field(() => UserBasedRole)
-  @Column()
-  role: UserBasedRole;
+  @Field(() => UsersRoles)
+  @Column({
+    type: 'enum',
+    enum: UsersRoles,
+    default: UsersRoles.passenger,
+  })
+  role: UsersRoles;
   @Field()
   @Column()
   password: string;

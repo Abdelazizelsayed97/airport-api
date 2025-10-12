@@ -1,19 +1,14 @@
-import { InputType, Field } from '@nestjs/graphql';
-import { CreateEmployeeInput } from 'src/employees/dto/create-employee.input';
 
+import { InputType, Field } from '@nestjs/graphql';
 
 @InputType()
 export class CreateFightStaffInput {
-  @Field(() => CreateEmployeeInput)
-  pilot: CreateEmployeeInput;
-
-  @Field(() => CreateEmployeeInput)
-  crew: CreateEmployeeInput;
-
-  @Field(() => CreateEmployeeInput)
-  ground_staff: CreateEmployeeInput;
-
-  @Field(() => CreateEmployeeInput)
-  security: CreateEmployeeInput;
+  @Field(() => String)
+  name: string;
+  @Field(() => String)
+  role: string;
+  @Field(() => String)
+  employeeID: string;
+  @Field(() => String)
+  fight_id: String;
 }
-  

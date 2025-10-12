@@ -1,7 +1,7 @@
 import { InputType, Int, Field, ObjectType } from '@nestjs/graphql';
 import { IsPassportNumber } from 'class-validator';
 import { CreateBookInput } from 'src/book/dto/create-book.input';
-import { UserBasedRole } from 'src/enums/user.roles';
+import { UsersRoles } from 'src/enums/user.roles';
 
 @InputType()
 @ObjectType()
@@ -14,6 +14,6 @@ export class SignUpDto {
   password: string;
   @Field(() => String)
   name: string;
-  @Field(() => UserBasedRole)
-  role: UserBasedRole;
+  @Field(() => UsersRoles)
+  role: UsersRoles;
 }

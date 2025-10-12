@@ -33,10 +33,10 @@ input CreateEmployeeInput {
 }
 
 input CreateFightStaffInput {
-  crew: CreateEmployeeInput!
-  ground_staff: CreateEmployeeInput!
-  pilot: CreateEmployeeInput!
-  security: CreateEmployeeInput!
+  employeeID: String!
+  fight_id: String!
+  name: String!
+  role: String!
 }
 
 input CreateFlightMangementInput {
@@ -76,12 +76,11 @@ type FlightMangementEntity {
 }
 
 type FlightStaff {
-  crew: Employee!
+  employeeID: String!
   flight: FlightMangementEntity
-  ground_staff: Employee!
   id: Int!
-  pilot: Employee!
-  security: Employee!
+  name: String!
+  role: String!
 }
 
 input FlightsFilterInput {
@@ -91,7 +90,7 @@ input FlightsFilterInput {
 }
 
 type Mutation {
-  auth(registerInput: SignInDto!): User!
+  auth(registerInput: SignUpDto!): User!
   createAirLine(createAirLineInput: CreateAirLineInput!): AirLine!
   createBook(createBookInput: CreateBookInput!): Book!
   createEmployee(createEmployeeInput: CreateEmployeeInput!): Employee!
@@ -104,8 +103,6 @@ type Mutation {
   removeEmployee(id: Int!): Employee!
   removeFightStaff(id: Int!): FlightStaff!
   removeFlightMangement(id: Int!): FlightMangementEntity!
-  signIn(signInDto: SignInDto!): User!
-  signUp(registerInput: SignUpDto!): User!
   updateAirLine(updateAirLineInput: UpdateAirLineInput!): AirLine!
   updateBook(updateBookInput: UpdateBookInput!): Book!
   updateEmployee(updateEmployeeInput: UpdateEmployeeInput!): Employee!
@@ -171,11 +168,11 @@ input UpdateEmployeeInput {
 }
 
 input UpdateFightStaffInput {
-  crew: CreateEmployeeInput
-  ground_staff: CreateEmployeeInput
+  employeeID: String
+  fight_id: String
   id: Int!
-  pilot: CreateEmployeeInput
-  security: CreateEmployeeInput
+  name: String
+  role: String
 }
 
 input UpdateFlightMangementInput {
