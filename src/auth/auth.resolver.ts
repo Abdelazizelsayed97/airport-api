@@ -3,8 +3,11 @@ import { AuthService } from './auth.service';
 import { User } from 'src/users/entities/user.entity';
 import { SignUpDto } from './dto/sign-up.input';
 import { SignInDto } from './dto/sign-in.input';
+import { UsersRoles } from 'src/enums/user.roles';
+import { Roles } from './decorators/auth.decorator';
 
 @Resolver(() => User)
+@Roles(UsersRoles.passenger, UsersRoles.passenger)
 export class AuthResolver {
   constructor(private readonly authService: AuthService) {}
 
@@ -13,7 +16,7 @@ export class AuthResolver {
     return this.authService.signIn(createAuthInput);
   }
 
-  @Mutation(() => User, { name: 'auth' })
+  @Mutation(() => User)
   signUp(@Args('registerInput') createAuthInput: SignUpDto) {
     return this.authService.sighUp(createAuthInput);
   }

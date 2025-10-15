@@ -5,16 +5,15 @@ import { UsersRoles } from 'src/enums/user.roles';
 import { User } from './entities/user.entity';
 import PaginationInput from 'src/pagination/pagination.dto';
 import { UpdateUserInput } from 'src/auth/dto/update-user.input';
-import { AuthGuard } from 'src/auth/guard/roles.guard';
 import { Roles } from 'src/auth/decorators/auth.decorator';
+import { AuthGuard } from 'src/auth/guard/auth.guard';
 
 @Injectable()
-export class AuthServices {
+export class UsersServices {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
-  @Roles(UsersRoles.admin)
-  @UseGuards(AuthGuard)
+
   async getAllUsers(pagination: PaginationInput): Promise<User[]> {
     return this.userRepository.find({
       take: pagination.limit,
@@ -23,12 +22,15 @@ export class AuthServices {
     });
   }
   @Roles(UsersRoles.admin, UsersRoles.staff)
-  @UseGuards(AuthGuard)
-  async findOne(id: number): Promise<User> {
-    const user = await this.userRepository.findOne({ where: { id } });
+  async findOne(id: string): Promise<User> {
+    const user = await this.userRepository.findOne({
+      where: { id: id },
+      relations: ['bookingList'],
+    });
     if (!user) {
       throw new Error("This user doesn't exist");
     }
+    sout(user);
     return user;
   }
   async getByRole(role: UsersRoles): Promise<User> {
@@ -38,7 +40,7 @@ export class AuthServices {
     }
     return user;
   }
-  async update(id: number, updateUserInput: UpdateUserInput) {
+  async update(id: string, updateUserInput: UpdateUserInput) {
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) {
       throw new Error("This user doesn't exist");
@@ -46,7 +48,7 @@ export class AuthServices {
     return this.userRepository.update(id, updateUserInput);
   }
 
-  async remove(id: number): Promise<any> {
+  async remove(id: string): Promise<any> {
     const user = await this.findOne(id);
     if (!user) {
       throw new Error("This user doesn't exist");
@@ -57,4 +59,8 @@ export class AuthServices {
       };
     });
   }
+}
+
+export function sout(parm: any) {
+  console.log(parm);
 }

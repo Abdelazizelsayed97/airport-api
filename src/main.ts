@@ -1,5 +1,6 @@
-
-require('dotenv').config({ path: '/Volumes/Data/backend projects/airport-api/.env' });
+require('dotenv').config({
+  path: '/Volumes/Data/backend projects/airport-api/.env',
+});
 
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
@@ -17,6 +18,7 @@ async function bootstrap() {
       always: true,
     }),
   );
+
 
   await app.listen(process.env.PORT ?? 3000);
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateFlightMangementInput } from './dto/create-flight_mangement.input';
 import { UpdateFlightMangementInput } from './dto/update-flight_mangement.input';
 import { Repository } from 'typeorm';
@@ -36,11 +36,9 @@ export class FlightMangementService {
     pagination: PaginationInput,
     filter: FlightsFilterInput,
   ): Promise<FlightMangementEntity[]> {
-    // Filter out undefined/null filter values and ensure types match entity
     const where: Partial<FlightMangementEntity> = {};
     Object.entries(filter || {}).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
-        // Convert String objects to string primitives if needed
         where[key] =
           typeof value === 'string'
             ? value
@@ -52,6 +50,7 @@ export class FlightMangementService {
       skip: (pagination.page - 1) * pagination.limit,
       take: pagination.limit,
       where,
+      relations: ['assigned'],
     });
 
     if (!flights || flights.length === 0) {
@@ -60,8 +59,11 @@ export class FlightMangementService {
     return flights;
   }
 
-  async findOne(id: number): Promise<FlightMangementEntity | null> {
-    const flight = await this.flightManageRepo.findOne({ where: { id } });
+  async findOne(id: string): Promise<FlightMangementEntity> {
+    const flight = await this.flightManageRepo.findOne({
+      where: { id },
+      relations: ['assigned'],
+    });
     if (!flight) {
       throw new Error("This flight doesn't exist or departed");
     }
@@ -69,13 +71,13 @@ export class FlightMangementService {
   }
 
   async update(
-    id: number,
+    id: string,
     updateFlightMangementInput: UpdateFlightMangementInput,
   ): Promise<FlightMangementEntity> {
     if (!id) {
       throw new Error("Id can't be null");
     }
-    const flight = await this.flightManageRepo.findOne({ where: { id } });
+    const flight = await this.findOne(id);
     if (!flight) {
       throw new Error("This flight doesn't exist or departed");
     }
@@ -83,10 +85,13 @@ export class FlightMangementService {
     return this.flightManageRepo.save(flight);
   }
 
-  async cancel(id: number): Promise<FlightMangementEntity | null> {
-    const flight = await this.flightManageRepo.findOne({ where: { id } });
+  async cancel(id: string): Promise<FlightMangementEntity> {
+    const flight = await this.findOne(id);
 
-    if (!flight) return null;
+    if (!flight) {
+      throw new NotFoundException("This flight doesn't exist or departed");
+    }
+
     await this.flightManageRepo.delete(id);
     return flight;
   }

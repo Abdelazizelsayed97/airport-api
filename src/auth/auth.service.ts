@@ -2,37 +2,45 @@ import { Injectable, UseGuards } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
-import { AuthGuard } from './guard/roles.guard';
 import { SignUpDto } from './dto/sign-up.input';
 import { SignInDto } from './dto/sign-in.input';
+import { Roles } from './decorators/auth.decorator';
+import { UsersRoles } from 'src/enums/user.roles';
+import { sout } from 'src/users/users.service';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
+    private jwtService: JwtService,
   ) {}
-  @UseGuards(AuthGuard)
+
   async sighUp(createUserInput: SignUpDto): Promise<User> {
     console.log(createUserInput);
-    // const user = this.userRepository.create({
-    //   ...(createUserInput.name && { name: createUserInput.name }),
-    //   password: createUserInput.password,
-    //   role: UserBasedRole.passenger,
-    //   ...(createUserInput.passportNumber && {
-    //     passportNumber: createUserInput.passportNumber,
-    //   }),
-    //   ...(createUserInput.email && { email: createUserInput.email }),
-    // });
+    const generatedToken = this.jwtService.sign({
+      secret: process.env.JWT_SECRET,
+      expiresIn: '7d',
+    });
     const isUserExist = await this.userRepository.findOne({
       where: { email: createUserInput.email },
+      relations: ['bookingList'],
+      loadRelationIds: true,
     });
+    sout(isUserExist);
     if (isUserExist) {
       throw new Error('User already exists with this email');
     }
-    const user = this.userRepository.create(createUserInput);
+    const user = this.userRepository.create({
+      ...createUserInput,
+      token: generatedToken,
+    });
+    sout(user);
     await this.userRepository.save(user);
     return user;
   }
+
+  @Roles(UsersRoles.passenger, UsersRoles.staff, UsersRoles.admin)
   async signIn(input: SignInDto): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { email: input.email },

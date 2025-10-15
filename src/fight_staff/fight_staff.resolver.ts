@@ -3,7 +3,14 @@ import { FightStaffService } from './fight_staff.service';
 import { FlightStaff } from './entities/fight_staff.entity';
 import { CreateFightStaffInput } from './dto/create-fight_staff.input';
 import { UpdateFightStaffInput } from './dto/update-fight_staff.input';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from 'src/auth/guard/auth.guard';
+import { RolesGuard } from 'src/users/users.guards/role.guard';
+import { Roles } from 'src/auth/decorators/auth.decorator';
+import { UsersRoles } from 'src/enums/user.roles';
 
+@UseGuards(AuthGuard, RolesGuard)
+@Roles(UsersRoles.admin, UsersRoles.staff)
 @Resolver(() => FlightStaff)
 export class FightStaffResolver {
   constructor(private readonly fightStaffService: FightStaffService) {}
@@ -12,7 +19,7 @@ export class FightStaffResolver {
   createFightStaff(
     @Args('createFightStaffInput') createFightStaffInput: CreateFightStaffInput,
   ) {
-    return this.fightStaffService.create(createFightStaffInput);
+    return this.fightStaffService.assignMember(createFightStaffInput);
   }
 
   @Query(() => [FlightStaff], { name: 'fightStaff' })

@@ -5,6 +5,7 @@ import FlightMangementEntity from 'src/flight_mangement/entities/flight_mangemen
 import {
   Column,
   Entity,
+  ManyToMany,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -24,27 +25,9 @@ export class FlightStaff {
   @Column({ type: 'enum', enum: staff_Roles })
   role: staff_Roles;
   @Field(() => String)
-  @Column()
+  @ManyToMany(() => Employee, (emp) => emp.assigned_flights.id)
   employeeID: string;
   @Field(() => FlightMangementEntity, { nullable: true })
   @OneToOne(() => FlightMangementEntity, (flight) => flight.assigned)
   flight?: FlightMangementEntity;
-  // @Field(() => Employee)
-  // @OneToMany(() => Employee, (employee) => employee.assigned_flights)
-  // pilot: Employee;
-
-  // @Field(() => Employee)
-  // @OneToMany(() => Employee, (employee) => employee.assigned_flights)
-  // crew: Employee;
-
-  // @Field(() => Employee)
-  // @OneToMany(() => Employee, (employee) => employee.assigned_flights)
-  // ground_staff: Employee;
-
-  // @Field(() => Employee)
-  // @OneToMany(() => Employee, (employee) => employee.assigned_flights)
-  // security: Employee;
-  // @Field(() => FlightMangementEntity, { nullable: true })
-  // @OneToOne(() => FlightMangementEntity, (flight) => flight.assigned)
-  // flight?: FlightMangementEntity;
 }

@@ -1,25 +1,20 @@
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
-import { AuthServices } from './users.service';
+import { UsersServices } from './users.service';
 import { User } from './entities/user.entity';
-
 import { UpdateUserInput } from '../auth/dto/update-user.input';
-
 import PaginationInput from 'src/pagination/pagination.dto';
+import { RolesGuard } from './users.guards/role.guard';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from 'src/auth/guard/auth.guard';
+import { UsersRoles } from 'src/enums/user.roles';
+import { Roles } from 'src/auth/decorators/auth.decorator';
 
+@Roles(UsersRoles.admin, UsersRoles.staff)
+@UseGuards(AuthGuard, RolesGuard)
 @Resolver(() => User)
 export class UsersResolver {
-  constructor(private readonly usersService: AuthServices) {}
+  constructor(private readonly usersService: UsersServices) {}
 
-  // @Mutation(() => User, { name: 'signUp' })
-  // async signUp(
-  //   @Args('registerInput') createUserInput: SignUpDto,
-  // ): Promise<User> {
-  //   return this.usersService.sighUp(createUserInput);
-  // }
-  // @Mutation(() => User, { name: 'signIn' })
-  // signIn(@Args('signInDto') input: SignInDto) {
-  //   return this.usersService.signIn(input);
-  // }
   @Query(() => [User], { name: 'users' })
   async getAllUsers(
     @Args('paginate', { type: () => PaginationInput })
@@ -27,11 +22,10 @@ export class UsersResolver {
   ): Promise<User[]> {
     return this.usersService.getAllUsers(pagination);
   }
-  // @Query(() => [User], { name: "getUsersByRole" })
-
+  @UseGuards(AuthGuard, RolesGuard)
   @Query(() => User, { name: 'getUserById' })
   async getUserById(
-    @Args('id', { type: () => Int }) id: number,
+    @Args('id', { type: () => String }) id: string,
   ): Promise<User> {
     return this.usersService.findOne(id);
   }
@@ -42,7 +36,7 @@ export class UsersResolver {
   }
 
   @Mutation(() => User, { name: 'deleteUser' })
-  removeUser(@Args('id', { type: () => Int }) id: number) {
+  removeUser(@Args('id', { type: () => String }) id: string) {
     return this.usersService.remove(id);
   }
 }
