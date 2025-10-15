@@ -2,7 +2,6 @@ import { Injectable, UseGuards } from '@nestjs/common';
 import { CreateBookInput } from './dto/create-book.input';
 import { UpdateBookInput } from './dto/update-book.input';
 import { Book } from './entities/book.entity';
-import { User } from 'src/users/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AuthGuard } from 'src/auth/guard/roles.guard';
