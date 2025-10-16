@@ -13,7 +13,7 @@ import { User } from 'src/users/entities/user.entity';
 
 @ObjectType()
 @Entity()
-export default class FlightMangementEntity {
+export default class FlightEntity {
   @Field(() => String)
   @PrimaryGeneratedColumn('uuid')
   id: string;

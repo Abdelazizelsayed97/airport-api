@@ -13,15 +13,13 @@ import { JwtService } from '@nestjs/jwt';
 export class AuthService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
+
     private jwtService: JwtService,
   ) {}
 
   async sighUp(createUserInput: SignUpDto): Promise<User> {
     console.log(createUserInput);
-    const generatedToken = this.jwtService.sign({
-      secret: process.env.JWT_SECRET,
-      expiresIn: '7d',
-    });
+
     const isUserExist = await this.userRepository.findOne({
       where: { email: createUserInput.email },
       relations: ['bookingList'],
@@ -33,8 +31,10 @@ export class AuthService {
     }
     const user = this.userRepository.create({
       ...createUserInput,
-      token: generatedToken,
     });
+    const generatedToken = this.jwtService.sign({user});
+    user.token = generatedToken;
+
     sout(user);
     await this.userRepository.save(user);
     return user;

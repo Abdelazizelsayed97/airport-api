@@ -11,9 +11,9 @@ import {
 @Entity({ synchronize: true })
 @ObjectType()
 export class Book {
-  @Field(() => Int)
+  @Field(() => String)
   @PrimaryGeneratedColumn()
-  id: number;
+  id: string;
   @Field(() => String)
   @Column()
   flightNumber: string;

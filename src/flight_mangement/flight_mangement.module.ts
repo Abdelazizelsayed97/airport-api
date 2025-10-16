@@ -1,12 +1,14 @@
 import { Module } from '@nestjs/common';
 import { FlightMangementService } from './flight_mangement.service';
 import { FlightMangementResolver } from './flight_mangement.resolver';
-import FlightMangementEntity from './entities/flight_mangement.entity';
+
 import { TypeOrmModule } from '@nestjs/typeorm';
+import FlightEntity from './entities/flight.entity';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
   providers: [FlightMangementResolver, FlightMangementService],
   exports: [FlightMangementService],
-  imports: [TypeOrmModule.forFeature([FlightMangementEntity])],
+  imports: [TypeOrmModule.forFeature([FlightEntity]), UsersModule],
 })
 export class FlightMangementModule {}

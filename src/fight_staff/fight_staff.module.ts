@@ -4,10 +4,15 @@ import { FightStaffResolver } from './fight_staff.resolver';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { FlightStaff } from './entities/fight_staff.entity';
 import { FlightMangementModule } from 'src/flight_mangement/flight_mangement.module';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
   providers: [FightStaffResolver, FightStaffService],
-  imports: [TypeOrmModule.forFeature([FlightStaff]), FlightMangementModule],
+  imports: [
+    TypeOrmModule.forFeature([FlightStaff]),
+    FlightMangementModule,
+    UsersModule,
+  ],
   exports: [FightStaffService],
 })
 export class FightStaffModule {}

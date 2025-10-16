@@ -1,16 +1,16 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @ObjectType()
-  @Entity({synchronize:true})
+@Entity({ synchronize: true })
 export class AirLine {
-  @Field(() => Int)
-    @Column()
-  id: number;
   @Field(() => String)
-    @Column()
+  @PrimaryGeneratedColumn()
+  id: string;
+  @Field(() => String)
+  @Column()
   name: string;
   @Field(() => String)
-    @Column()
-  country: string;  
+  @Column()
+  country: string;
 }

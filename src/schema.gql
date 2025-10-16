@@ -4,13 +4,13 @@
 
 type AirLine {
   country: String!
-  id: Int!
+  id: String!
   name: String!
 }
 
 type Book {
   flightNumber: String!
-  id: Int!
+  id: String!
   seatNumber: String!
   user: User!
 }
@@ -63,7 +63,7 @@ type Employee {
   role: staff_Roles!
 }
 
-type FlightMangementEntity {
+type FlightEntity {
   airline: String!
   arrival_time: Timestamp!
   assigned: FlightStaff!
@@ -80,7 +80,7 @@ type FlightMangementEntity {
 
 type FlightStaff {
   employeeID: String!
-  flight: FlightMangementEntity
+  flight: FlightEntity
   id: Int!
   name: String!
   role: String!
@@ -97,20 +97,20 @@ type Mutation {
   createBook(createBookInput: CreateBookInput!): Book!
   createEmployee(createEmployeeInput: CreateEmployeeInput!): Employee!
   createFightStaff(createFightStaffInput: CreateFightStaffInput!): FlightStaff!
-  createFlight(createFlightMangementInput: CreateFlightMangementInput!): FlightMangementEntity!
+  createFlight(createFlightMangementInput: CreateFlightMangementInput!): FlightEntity!
   deleteUser(id: String!): User!
   login(loginInput: SignInDto!): User!
-  removeAirLine(id: Int!): AirLine!
-  removeBook(id: Int!): Book!
+  removeAirLine(id: String!): AirLine!
+  removeBook(id: String!): Book!
   removeEmployee(id: Int!): Employee!
   removeFightStaff(id: Int!): FlightStaff!
-  removeFlightMangement(id: String!): FlightMangementEntity!
+  removeFlightMangement(id: String!): FlightEntity!
   signUp(registerInput: SignUpDto!): User!
   updateAirLine(updateAirLineInput: UpdateAirLineInput!): AirLine!
   updateBook(updateBookInput: UpdateBookInput!): Book!
   updateEmployee(updateEmployeeInput: UpdateEmployeeInput!): Employee!
   updateFightStaff(updateFightStaffInput: UpdateFightStaffInput!): FlightStaff!
-  updateFlightMangement(updateFlightMangementInput: UpdateFlightMangementInput!): FlightMangementEntity!
+  updateFlightMangement(updateFlightMangementInput: UpdateFlightMangementInput!): FlightEntity!
   updateUser(updateUserInput: UpdateUserInput!): User!
 }
 
@@ -120,14 +120,14 @@ input PaginationInput {
 }
 
 type Query {
-  airLine(id: Int!): AirLine!
-  airLines: [AirLine!]!
+  airLine(id: String!): AirLine!
+  airLines(paginationInput: PaginationInput!): [AirLine!]!
   book(id: Int!): Book!
   employee(id: Int!): Employee!
   employees: [Employee!]!
   fightStaff(id: Int!): FlightStaff!
-  flightMangementById(id: String!): FlightMangementEntity!
-  getAllFlights(filter: FlightsFilterInput, pagination: PaginationInput): [FlightMangementEntity!]
+  flightMangementById(id: String!): FlightEntity!
+  getAllFlights(filter: FlightsFilterInput, pagination: PaginationInput): [FlightEntity!]
   getUserById(id: String!): User!
   users(paginate: PaginationInput!): [User!]!
 }
@@ -152,7 +152,7 @@ scalar Timestamp
 
 input UpdateAirLineInput {
   country: String
-  id: Int!
+  id: String!
   name: String
 }
 

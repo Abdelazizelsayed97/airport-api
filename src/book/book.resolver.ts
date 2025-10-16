@@ -1,21 +1,21 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, Int, ID } from '@nestjs/graphql';
 import { BookService } from './book.service';
 import { Book } from './entities/book.entity';
 import { CreateBookInput } from './dto/create-book.input';
 import { UpdateBookInput } from './dto/update-book.input';
 import { Roles } from 'src/auth/decorators/auth.decorator';
 import { UsersRoles } from 'src/enums/user.roles';
-import { UseGuards, UseInterceptors } from '@nestjs/common';
+import { UseGuards } from '@nestjs/common';
 import { RolesGuard } from 'src/users/users.guards/role.guard';
-import { BookingInspector } from 'src/users/inspectors/user.inspector';
+import PaginationInput from 'src/pagination/pagination.dto';
+import { AuthGuard } from 'src/auth/guard/auth.guard';
 
 @Resolver(() => Book)
 export class BookResolver {
   constructor(private readonly bookService: BookService) {}
 
   @Roles(UsersRoles.passenger)
-  @UseGuards(RolesGuard)
-  @UseInterceptors(BookingInspector)
+  @UseGuards(RolesGuard, AuthGuard)
   @Mutation(() => Book)
   async createBook(
     @Args('createBookInput') createBookInput: CreateBookInput,
@@ -24,8 +24,18 @@ export class BookResolver {
   }
 
   @Query(() => [Book], { name: 'book' })
-  findAll() {
-    return this.bookService.findAll();
+  findAll(
+    @Args('pagination', { type: () => PaginationInput })
+    pagination: PaginationInput,
+    @Args('userId', { type: () => String, nullable: true })
+    userId: string,
+  ) {
+    return this.bookService.findAll(userId, pagination);
+  }
+
+  @Query(() => [Book], { name: 'book' })
+  findMyBook(@Args('flightId', { type: () => String }) flightId: string) {
+    return this.bookService.findAllBooksForFlight(flightId);
   }
 
   @Query(() => Book, { name: 'book' })
@@ -39,7 +49,7 @@ export class BookResolver {
   }
 
   @Mutation(() => Book)
-  removeBook(@Args('id', { type: () => Int }) id: number) {
+  removeBook(@Args('id', { type: () => String }) id: string) {
     return this.bookService.remove(id);
   }
 }

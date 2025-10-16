@@ -6,13 +6,13 @@ import {
 } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { JwtService } from '@nestjs/jwt';
+import { sout } from 'src/users/users.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(private jwtService: JwtService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    // Get GraphQL context
     const gqlContext = GqlExecutionContext.create(context);
     const request = gqlContext.getContext().req;
 
@@ -26,9 +26,8 @@ export class AuthGuard implements CanActivate {
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync(token, {
-        secret: process.env.JWT_SECRET,
-      });
+      sout(token);
+      const payload = await this.jwtService.verify(token);
       request['user'] = payload;
       return true;
     } catch (error) {

@@ -21,7 +21,7 @@ export class UsersServices {
       where: { role: UsersRoles.passenger },
     });
   }
-  @Roles(UsersRoles.admin, UsersRoles.staff)
+
   async findOne(id: string): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { id: id },
@@ -30,7 +30,7 @@ export class UsersServices {
     if (!user) {
       throw new Error("This user doesn't exist");
     }
-    sout(user);
+    // sout(user);
     return user;
   }
   async getByRole(role: UsersRoles): Promise<User> {

@@ -23,14 +23,17 @@ import { configDotenv } from 'dotenv';
       database: process.env.DB_NAME,
       port: Number(process.env.DB_PORT),
       autoLoadEntities: true,
+      //drop schema for db mmodifications
       // dropSchema: true,
       synchronize: true,
+
       subscribers: [join(__dirname, '**', '*.subscriber.{ts,js}')],
     }),
 
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      fieldResolverEnhancers: ['guards'],
       sortSchema: true,
       graphiql: true,
       context: ({ req, res }) => ({ req, res }),
@@ -44,13 +47,10 @@ import { configDotenv } from 'dotenv';
         },
       },
     }),
-    JwtModule.registerAsync({
+    JwtModule.register({
       global: true,
-      imports: [UsersModule],
-      useFactory: async () => ({
-        secret: process.env.JWT_SECRET,
-        signOptions: { expiresIn: '7d' },
-      }),
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '7d' },
     }),
     FlightMangementModule,
     UsersModule,

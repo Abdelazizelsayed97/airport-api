@@ -1,12 +1,12 @@
 import { Resolver, Subscription } from '@nestjs/graphql';
-import FlightMangementEntity from '../entities/flight_mangement.entity';
 import { PubSub } from 'graphql-subscriptions';
+import FlightEntity from '../entities/flight.entity';
 
 const pubSub = new PubSub();
 
-@Resolver(() => FlightMangementEntity)
+@Resolver(() => FlightEntity)
 export class AuthorResolver {
-  @Subscription(() => FlightMangementEntity)
+  @Subscription(() => FlightEntity)
   synchornizedFlights() {
     return pubSub.asyncIterableIterator('flightSynconization');
   }

@@ -1,8 +1,9 @@
 import { Repository } from 'typeorm';
-import FlightMangementEntity from '../entities/flight_mangement.entity';
+import FlightEntity from '../entities/flight.entity';
+
 
 export class FlightSubscriptionServices {
-  constructor(private readonly repo: Repository<FlightMangementEntity>) {}
+  constructor(private readonly repo: Repository<FlightEntity>) {}
 
   flightSynconization() {
     return this.repo.find();

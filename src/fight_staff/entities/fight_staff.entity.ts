@@ -1,7 +1,8 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
 import { Employee } from 'src/employees/entities/employee.entity';
 import { staff_Roles } from 'src/enums/crew.roles';
-import FlightMangementEntity from 'src/flight_mangement/entities/flight_mangement.entity';
+import FlightEntity from 'src/flight_mangement/entities/flight.entity';
+
 import {
   Column,
   Entity,
@@ -27,7 +28,7 @@ export class FlightStaff {
   @Field(() => String)
   @ManyToMany(() => Employee, (emp) => emp.assigned_flights.id)
   employeeID: string;
-  @Field(() => FlightMangementEntity, { nullable: true })
-  @OneToOne(() => FlightMangementEntity, (flight) => flight.assigned)
-  flight?: FlightMangementEntity;
+  @Field(() => FlightEntity, { nullable: true })
+  @OneToOne(() => FlightEntity, (flight) => flight.assigned)
+  flight?: FlightEntity;
 }

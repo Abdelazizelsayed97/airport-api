@@ -10,6 +10,7 @@ import { UsersRoles } from 'src/enums/user.roles';
 
 import { UsersServices } from 'src/users/users.service';
 import { AuthGuard } from 'src/auth/guard/auth.guard';
+import PaginationInput from 'src/pagination/pagination.dto';
 
 @Injectable()
 export class BookService {
@@ -36,8 +37,8 @@ export class BookService {
     return saved;
   }
 
-async findAll(): Promise<Book[]> {
-    const books =await this.bookRepository.find({ relations: ['user'] });
+  async findAll(id: string, paginate: PaginationInput): Promise<Book[]> {
+    const books = await this.bookRepository.find({ relations: ['user'] });
     console.log(books);
     if (!books) {
       throw new Error('No bookings found');
@@ -45,9 +46,19 @@ async findAll(): Promise<Book[]> {
     return books;
   }
 
+  async findAllBooksForFlight(flightId: string): Promise<Book[]> {
+    const allBook = await this.bookRepository.find({
+      where: {},
+      relations: ['user'],
+    });
+    return allBook.filter((book) => {
+      return book.id === flightId;
+    });
+  }
+
   async findOne(id: string) {
     const book = await this.bookRepository.findOne({
-      where: { id: Number(id) },
+      where: { id: id },
       relations: ['user'],
     });
     if (!book) {
@@ -65,7 +76,7 @@ async findAll(): Promise<Book[]> {
     return await this.bookRepository.save(book);
   }
 
-  async remove(id: number) {
+  async remove(id: string) {
     return await this.bookRepository.delete(id);
   }
 }

@@ -2,20 +2,18 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateFlightMangementInput } from './dto/create-flight_mangement.input';
 import { UpdateFlightMangementInput } from './dto/update-flight_mangement.input';
 import { Repository } from 'typeorm';
-import FlightMangementEntity from './entities/flight_mangement.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import PaginationInput from 'src/pagination/pagination.dto';
 import { FlightsFilterInput } from './dto/flight.filter.dto';
+import FlightEntity from './entities/flight.entity';
 
 @Injectable()
 export class FlightMangementService {
   constructor(
-    @InjectRepository(FlightMangementEntity)
-    private flightManageRepo: Repository<FlightMangementEntity>,
+    @InjectRepository(FlightEntity)
+    private flightManageRepo: Repository<FlightEntity>,
   ) {}
-  async create(
-    input: CreateFlightMangementInput,
-  ): Promise<FlightMangementEntity> {
+  async create(input: CreateFlightMangementInput): Promise<FlightEntity> {
     if (!input) {
       throw new Error('Bad input');
     }
@@ -35,8 +33,8 @@ export class FlightMangementService {
   async findAll(
     pagination: PaginationInput,
     filter: FlightsFilterInput,
-  ): Promise<FlightMangementEntity[]> {
-    const where: Partial<FlightMangementEntity> = {};
+  ): Promise<FlightEntity[]> {
+    const where: Partial<FlightEntity> = {};
     Object.entries(filter || {}).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
         where[key] =
@@ -59,7 +57,7 @@ export class FlightMangementService {
     return flights;
   }
 
-  async findOne(id: string): Promise<FlightMangementEntity> {
+  async findOne(id: string): Promise<FlightEntity> {
     const flight = await this.flightManageRepo.findOne({
       where: { id },
       relations: ['assigned'],
@@ -73,7 +71,7 @@ export class FlightMangementService {
   async update(
     id: string,
     updateFlightMangementInput: UpdateFlightMangementInput,
-  ): Promise<FlightMangementEntity> {
+  ): Promise<FlightEntity> {
     if (!id) {
       throw new Error("Id can't be null");
     }
@@ -85,7 +83,7 @@ export class FlightMangementService {
     return this.flightManageRepo.save(flight);
   }
 
-  async cancel(id: string): Promise<FlightMangementEntity> {
+  async cancel(id: string): Promise<FlightEntity> {
     const flight = await this.findOne(id);
 
     if (!flight) {

@@ -5,6 +5,8 @@ import { SignUpDto } from './dto/sign-up.input';
 import { SignInDto } from './dto/sign-in.input';
 import { UsersRoles } from 'src/enums/user.roles';
 import { Roles } from './decorators/auth.decorator';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from './guard/auth.guard';
 
 @Resolver(() => User)
 @Roles(UsersRoles.passenger, UsersRoles.passenger)
