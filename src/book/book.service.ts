@@ -1,30 +1,37 @@
-import { Injectable, NotFoundException, UseGuards } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateBookInput } from './dto/create-book.input';
 import { UpdateBookInput } from './dto/update-book.input';
 import { Book } from './entities/book.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { UsersRoles } from '../enums/user.roles';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+
 import { Repository } from 'typeorm';
 
-import { Roles } from 'src/auth/decorators/auth.decorator';
-import { UsersRoles } from 'src/enums/user.roles';
-
-import { UsersServices } from 'src/users/users.service';
-import { AuthGuard } from 'src/auth/guard/auth.guard';
-import PaginationInput from 'src/pagination/pagination.dto';
+import { UsersServices } from '../users/users.service';
+import PaginationInput from '../pagination/pagination.dto';
 
 @Injectable()
 export class BookService {
   constructor(
     @InjectRepository(Book) private bookRepository: Repository<Book>,
-    readonly userService: UsersServices,
+
+    @Inject(forwardRef(() => UsersServices))
+    private readonly usersService: UsersServices,
   ) {}
-  @UseGuards(AuthGuard)
-  @Roles(UsersRoles.passenger)
+
   async create(createBookInput: CreateBookInput): Promise<Book> {
-    console.log(createBookInput);
-    const user = await this.userService.findOne(createBookInput.userId);
+    const user = await this.usersService.findOne(createBookInput.userId);
     if (!user) {
       throw new NotFoundException('User not found');
+    }
+    if (user.role !== UsersRoles.passenger) {
+      throw new NotFoundException('Forbidden');
     }
 
     const book = this.bookRepository.create({
@@ -32,18 +39,13 @@ export class BookService {
       user: user,
     } as Partial<Book>);
 
-    const saved = await this.bookRepository.save(book);
+    const newBook = await this.bookRepository.save(book);
 
-    return saved;
+    return newBook;
   }
 
-  async findAll(id: string, paginate: PaginationInput): Promise<Book[]> {
-    const books = await this.bookRepository.find({ relations: ['user'] });
-    console.log(books);
-    if (!books) {
-      throw new Error('No bookings found');
-    }
-    return books;
+  findAll(id: string, paginate: PaginationInput) {
+    return this.bookRepository.find();
   }
 
   async findAllBooksForFlight(flightId: string): Promise<Book[]> {
@@ -77,6 +79,9 @@ export class BookService {
   }
 
   async remove(id: string) {
+    if (!id) {
+      throw new NotFoundException();
+    }
     return await this.bookRepository.delete(id);
   }
 }

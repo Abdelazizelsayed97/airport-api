@@ -1,25 +1,32 @@
-import { Resolver, Query, Mutation, Args, Int, ID } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { BookService } from './book.service';
 import { Book } from './entities/book.entity';
 import { CreateBookInput } from './dto/create-book.input';
 import { UpdateBookInput } from './dto/update-book.input';
-import { Roles } from 'src/auth/decorators/auth.decorator';
-import { UsersRoles } from 'src/enums/user.roles';
 import { UseGuards } from '@nestjs/common';
-import { RolesGuard } from 'src/users/users.guards/role.guard';
-import PaginationInput from 'src/pagination/pagination.dto';
-import { AuthGuard } from 'src/auth/guard/auth.guard';
+import { UsersRoles } from '../enums/user.roles';
+import { Roles } from '../auth/decorators/auth.decorator';
+import { AuthGuard } from '../auth/guard/auth.guard';
+import PaginationInput from '../pagination/pagination.dto';
+import { RolesGuard } from '../users/users.guards/role.guard';
+import { sout } from '../users/users.service';
+
+
+
+
 
 @Resolver(() => Book)
 export class BookResolver {
   constructor(private readonly bookService: BookService) {}
 
   @Roles(UsersRoles.passenger)
-  @UseGuards(RolesGuard, AuthGuard)
+  @UseGuards(AuthGuard, RolesGuard)
   @Mutation(() => Book)
   async createBook(
     @Args('createBookInput') createBookInput: CreateBookInput,
   ): Promise<Book> {
+    sout(createBookInput.userId);
+
     return this.bookService.create(createBookInput);
   }
 
@@ -39,12 +46,12 @@ export class BookResolver {
   }
 
   @Query(() => Book, { name: 'book' })
-  findOne(@Args('id', { type: () => Int }) id: string) {
+  findOne(@Args('id', { type: () => String }) id: string) {
     return this.bookService.findOne(id);
   }
 
   @Mutation(() => Book)
-  updateBook(@Args('updateBookInput') updateBookInput: UpdateBookInput) {
+  updateBook(@Args('updateBookInput')  updateBookInput: UpdateBookInput) {
     return this.bookService.update(updateBookInput.id, updateBookInput);
   }
 
@@ -53,3 +60,4 @@ export class BookResolver {
     return this.bookService.remove(id);
   }
 }
+

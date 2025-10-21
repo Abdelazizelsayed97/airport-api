@@ -1,17 +1,24 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
 import { UsersServices } from './users.service';
 import { User } from './entities/user.entity';
 import { UpdateUserInput } from '../auth/dto/update-user.input';
-import PaginationInput from 'src/pagination/pagination.dto';
+
 import { RolesGuard } from './users.guards/role.guard';
-import { UseGuards } from '@nestjs/common';
-import { AuthGuard } from 'src/auth/guard/auth.guard';
-import { UsersRoles } from 'src/enums/user.roles';
-import { Roles } from 'src/auth/decorators/auth.decorator';
+import { UseGuards, UseInterceptors } from '@nestjs/common';
+
+
+
+import { GraphqlResponseInspector } from './inspectors/users.response.inspector';
+import { Roles } from 'auth/decorators/auth.decorator';
+import { AuthGuard } from 'auth/guard/auth.guard';
+import { UsersRoles } from 'enums/user.roles';
+import PaginationInput from 'pagination/pagination.dto';
 
 // @Roles(UsersRoles.admin, UsersRoles.staff)
 // @UseGuards(AuthGuard, RolesGuard)
+
 @Resolver(() => User)
+@UseInterceptors(GraphqlResponseInspector)
 export class UsersResolver {
   constructor(private readonly usersService: UsersServices) {}
 
@@ -41,3 +48,14 @@ export class UsersResolver {
     return this.usersService.remove(id);
   }
 }
+
+// class UserInsterceptor implements NestInterceptor {
+//   intercept(
+//     context: ExecutionContext,
+//     next: CallHandler<any>,
+//   ): Observable<any> | Promise<Observable<any>> {
+//     const gqlctx = GqlExecutionContext.create(context);
+//     gqlctx.getContext().req.role = 'passenger';
+//     throw new Error('Method not implemented.');
+//   }
+// }

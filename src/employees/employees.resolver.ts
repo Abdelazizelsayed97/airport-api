@@ -9,7 +9,9 @@ export class EmployeesResolver {
   constructor(private readonly employeesService: EmployeesService) {}
 
   @Mutation(() => Employee)
-  createEmployee(@Args('createEmployeeInput') createEmployeeInput: CreateEmployeeInput) {
+  assignEmployee(
+    @Args('createEmployeeInput') createEmployeeInput: CreateEmployeeInput,
+  ) {
     return this.employeesService.create(createEmployeeInput);
   }
 
@@ -19,17 +21,19 @@ export class EmployeesResolver {
   }
 
   @Query(() => Employee, { name: 'employee' })
-  findOne(@Args('id', { type: () => Int }) id: number) {
+  findOne(@Args('id', { type: () => String }) id: string) {
     return this.employeesService.findOne(id);
   }
 
   @Mutation(() => Employee)
-  updateEmployee(@Args('updateEmployeeInput') updateEmployeeInput: UpdateEmployeeInput) {
-    return this.employeesService.update(updateEmployeeInput.id, updateEmployeeInput);
+  updateEmployee(
+    @Args('updateEmployeeInput') updateEmployeeInput: UpdateEmployeeInput,
+  ) {
+    return this.employeesService.update(updateEmployeeInput);
   }
 
   @Mutation(() => Employee)
-  removeEmployee(@Args('id', { type: () => Int }) id: number) {
+  removeEmployee(@Args('id', { type: () => String }) id: string) {
     return this.employeesService.remove(id);
   }
-}
+} 

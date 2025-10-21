@@ -11,7 +11,9 @@ import { join } from 'path';
 import { FightStaffModule } from './fight_staff/fight_staff.module';
 import { AirLinesModule } from './air_lines/air_lines.module';
 import { AuthModule } from './auth/auth.module';
-import { configDotenv } from 'dotenv';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { GraphqlResponseInspector } from './users/inspectors/users.response.inspector';
+import { RolesGuard } from 'users/users.guards/role.guard';
 
 @Module({
   imports: [
@@ -26,7 +28,6 @@ import { configDotenv } from 'dotenv';
       //drop schema for db mmodifications
       // dropSchema: true,
       synchronize: true,
-
       subscribers: [join(__dirname, '**', '*.subscriber.{ts,js}')],
     }),
 
@@ -34,13 +35,15 @@ import { configDotenv } from 'dotenv';
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       fieldResolverEnhancers: ['guards'],
+
       sortSchema: true,
       graphiql: true,
+      playground: true,
       context: ({ req, res }) => ({ req, res }),
       subscriptions: {
         'graphql-ws': true,
         'subscriptions-transport-ws': {
-          onConnect: (connectionParams) => {
+          onConnect: (connectionParams: any) => {
             console.log(connectionParams.Authorization);
             return { Authorization: connectionParams.Authorization };
           },
@@ -51,6 +54,7 @@ import { configDotenv } from 'dotenv';
       global: true,
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '7d' },
+      privateKey: process.env.JWT_SECRET,
     }),
     FlightMangementModule,
     UsersModule,
@@ -59,6 +63,16 @@ import { configDotenv } from 'dotenv';
     AirLinesModule,
     FightStaffModule,
     AuthModule,
+  ],
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: GraphqlResponseInspector,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
   ],
 })
 export class AppModule {

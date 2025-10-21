@@ -6,11 +6,10 @@ import {
 } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { JwtService } from '@nestjs/jwt';
-import { sout } from 'src/users/users.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private jwtService: JwtService) {}
+  constructor(public jwtService: JwtService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const gqlContext = GqlExecutionContext.create(context);
@@ -26,8 +25,9 @@ export class AuthGuard implements CanActivate {
     }
 
     try {
-      sout(token);
-      const payload = await this.jwtService.verify(token);
+      const payload = await this.jwtService.verifyAsync(token, {
+        secret: process.env.JWT_SECRET,
+      });
       request['user'] = payload;
       return true;
     } catch (error) {
@@ -36,20 +36,24 @@ export class AuthGuard implements CanActivate {
     }
   }
 
-  private extractTokenFromHeader(request: any): string | undefined {
+  private extractTokenFromHeader(request: any): string {
     if (!request || !request.headers) {
       console.log('No request or headers found');
-      return undefined;
+
+      throw new UnauthorizedException('No token provided');
     }
     const authHeader =
       request.headers.authorization || request.headers['Authorization'];
     console.log('Auth Header:', authHeader);
     if (!authHeader) {
-      return undefined;
+      throw new UnauthorizedException();
     }
     const [type, token] = authHeader.split(' ');
     console.log('Type:', type);
     console.log('Token:', token);
-    return type === 'Bearer' ? token : undefined;
+    if (type !== 'Bearer' || !token) {
+      throw new UnauthorizedException('Invalid token format');
+    }
+    return token;
   }
 }

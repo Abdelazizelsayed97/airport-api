@@ -3,7 +3,8 @@ import { AirLinesService } from './air_lines.service';
 import { AirLinesResolver } from './air_lines.resolver';
 import { AirLine } from './entities/air_line.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UsersModule } from 'src/users/users.module';
+import { UsersModule } from 'users/users.module';
+
 
 @Module({
   providers: [AirLinesResolver, AirLinesService],

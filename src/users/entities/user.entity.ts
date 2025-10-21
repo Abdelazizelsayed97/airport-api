@@ -1,11 +1,11 @@
-import { ObjectType, Field, Int } from '@nestjs/graphql';
+import { ObjectType, Field } from '@nestjs/graphql';
 import { Exclude } from 'class-transformer';
-import { Book } from 'src/book/entities/book.entity';
-import { UsersRoles } from 'src/enums/user.roles';
+import { Book } from '../../book/entities/book.entity';
+import { UsersRoles } from '../../enums/user.roles';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity({ synchronize: true })
 @ObjectType()
+@Entity({ synchronize: true })
 export class User {
   @Field(() => String)
   @PrimaryGeneratedColumn('uuid')
@@ -20,7 +20,7 @@ export class User {
   @Column({
     type: 'enum',
     enum: UsersRoles,
-    default: UsersRoles.passenger,
+    default: UsersRoles.passenger
   })
   role: UsersRoles;
   @Field()
@@ -28,9 +28,10 @@ export class User {
   @Exclude()
   password: string;
   @Field(() => [Book], { nullable: true })
-  @OneToMany(() => Book, (booking) => booking.user)
+  @OneToMany(() => Book, (booking) => booking.user, { nullable: true })
   bookingList?: Book[];
   @Field(() => String)
-  @Column()
+  @Column({})
+  // @Exclude()
   token: string;
 }

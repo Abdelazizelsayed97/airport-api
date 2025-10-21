@@ -1,12 +1,7 @@
-import { ObjectType, Field, Int } from '@nestjs/graphql';
-import { User } from 'src/users/entities/user.entity';
-import {
-  Column,
-  Entity,
-  ManyToOne,
-  OneToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { ObjectType, Field } from '@nestjs/graphql';
+
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { User } from 'users/entities/user.entity';
 
 @Entity({ synchronize: true })
 @ObjectType()

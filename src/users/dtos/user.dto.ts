@@ -1,5 +1,6 @@
+import { Book } from 'book/entities/book.entity';
 import { Expose } from 'class-transformer';
-import { Book } from 'src/book/entities/book.entity';
+
 
 export class UserDto {
   @Expose()

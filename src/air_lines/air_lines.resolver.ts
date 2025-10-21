@@ -1,14 +1,14 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { AirLinesService } from './air_lines.service';
 import { AirLine } from './entities/air_line.entity';
 import { CreateAirLineInput } from './dto/create-air_line.input';
 import { UpdateAirLineInput } from './dto/update-air_line.input';
-import PaginationInput from 'src/pagination/pagination.dto';
+import PaginationInput from '../pagination/pagination.dto';
 import { UseGuards } from '@nestjs/common';
-import { AuthGuard } from 'src/auth/guard/auth.guard';
-import { Roles } from 'src/auth/decorators/auth.decorator';
-import { RolesGuard } from 'src/users/users.guards/role.guard';
-import { UsersRoles } from 'src/enums/user.roles';
+import { AuthGuard } from '../auth/guard/auth.guard';
+import { Roles } from '../auth/decorators/auth.decorator';
+import { RolesGuard } from '../users/users.guards/role.guard';
+import { UsersRoles } from '../enums/user.roles';
 @Roles(UsersRoles.admin)
 @UseGuards(AuthGuard, RolesGuard)
 @Resolver(() => AirLine)

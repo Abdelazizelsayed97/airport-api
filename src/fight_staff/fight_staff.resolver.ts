@@ -4,10 +4,14 @@ import { FlightStaff } from './entities/fight_staff.entity';
 import { CreateFightStaffInput } from './dto/create-fight_staff.input';
 import { UpdateFightStaffInput } from './dto/update-fight_staff.input';
 import { UseGuards } from '@nestjs/common';
-import { AuthGuard } from 'src/auth/guard/auth.guard';
-import { RolesGuard } from 'src/users/users.guards/role.guard';
-import { Roles } from 'src/auth/decorators/auth.decorator';
-import { UsersRoles } from 'src/enums/user.roles';
+import { Roles } from 'auth/decorators/auth.decorator';
+import { AuthGuard } from 'auth/guard/auth.guard';
+import { UsersRoles } from 'enums/user.roles';
+import { RolesGuard } from 'users/users.guards/role.guard';
+
+
+
+
 
 @UseGuards(AuthGuard, RolesGuard)
 @Roles(UsersRoles.admin, UsersRoles.staff)

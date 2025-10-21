@@ -1,14 +1,24 @@
-import { ObjectType, Field, Int } from '@nestjs/graphql';
-import { staff_Roles } from 'src/enums/crew.roles';
-import { FlightStaff } from 'src/fight_staff/entities/fight_staff.entity';
-import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { ObjectType, Field } from '@nestjs/graphql';
+import { staff_Roles } from 'enums/crew.roles';
+import { FlightStaff } from 'fight_staff/entities/fight_staff.entity';
+import {
+  Column,
+  Entity,
+  ManyToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { User } from 'users/entities/user.entity';
 
 @ObjectType()
-@Entity('employees')
+@Entity('employees', { synchronize: true })
 export class Employee {
-  @Field(() => Int, { description: 'Example field (placeholder)' })
-  @PrimaryGeneratedColumn()
-  id: number;
+  @Field(() => String, { description: 'Example field (placeholder)' })
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+  @Field(() => User)
+  @OneToOne(() => User, (user) => user.id)
+  users: User;
   @Field(() => String)
   @Column()
   name: string;

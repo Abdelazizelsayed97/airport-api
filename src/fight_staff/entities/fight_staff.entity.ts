@@ -1,13 +1,11 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
-import { Employee } from 'src/employees/entities/employee.entity';
-import { staff_Roles } from 'src/enums/crew.roles';
-import FlightEntity from 'src/flight_mangement/entities/flight.entity';
-
+import { Employee } from 'employees/entities/employee.entity';
+import { staff_Roles } from 'enums/crew.roles';
+import FlightEntity from 'flight_mangement/entities/flight.entity';
 import {
   Column,
   Entity,
   ManyToMany,
-  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -15,10 +13,9 @@ import {
 @ObjectType()
 @Entity()
 export class FlightStaff {
-  @PrimaryGeneratedColumn()
-  @Field(() => Int)
-  @OneToMany(() => Employee, (employee) => employee.assigned_flights)
-  id: number;
+  @Field(() => String)
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
   @Field(() => String)
   @Column()
   name: string;

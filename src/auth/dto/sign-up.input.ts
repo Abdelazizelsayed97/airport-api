@@ -1,7 +1,6 @@
-import { InputType, Int, Field, ObjectType } from '@nestjs/graphql';
-import { IsPassportNumber } from 'class-validator';
-import { CreateBookInput } from 'src/book/dto/create-book.input';
-import { UsersRoles } from 'src/enums/user.roles';
+import { InputType, Field, ObjectType } from '@nestjs/graphql';
+import { UsersRoles } from 'enums/user.roles';
+
 
 @InputType()
 @ObjectType()

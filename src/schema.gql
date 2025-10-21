@@ -58,9 +58,10 @@ type Employee {
   email: String!
 
   """Example field (placeholder)"""
-  id: Int!
+  id: String!
   name: String!
   role: staff_Roles!
+  users: User!
 }
 
 type FlightEntity {
@@ -74,14 +75,14 @@ type FlightEntity {
   flight_number: String!
   flight_status: flight_status!
   id: String!
-  passagngers: [User!]!
+  passagngers: [User!]
   takenSeats: Int
 }
 
 type FlightStaff {
   employeeID: String!
   flight: FlightEntity
-  id: Int!
+  id: String!
   name: String!
   role: String!
 }
@@ -93,19 +94,19 @@ input FlightsFilterInput {
 }
 
 type Mutation {
+  assignEmployee(createEmployeeInput: CreateEmployeeInput!): Employee!
   createAirLine(createAirLineInput: CreateAirLineInput!): AirLine!
   createBook(createBookInput: CreateBookInput!): Book!
-  createEmployee(createEmployeeInput: CreateEmployeeInput!): Employee!
   createFightStaff(createFightStaffInput: CreateFightStaffInput!): FlightStaff!
   createFlight(createFlightMangementInput: CreateFlightMangementInput!): FlightEntity!
   deleteUser(id: String!): User!
   login(loginInput: SignInDto!): User!
+  register(registerInput: SignUpDto!): User!
   removeAirLine(id: String!): AirLine!
   removeBook(id: String!): Book!
-  removeEmployee(id: Int!): Employee!
+  removeEmployee(id: String!): Employee!
   removeFightStaff(id: Int!): FlightStaff!
   removeFlightMangement(id: String!): FlightEntity!
-  signUp(registerInput: SignUpDto!): User!
   updateAirLine(updateAirLineInput: UpdateAirLineInput!): AirLine!
   updateBook(updateBookInput: UpdateBookInput!): Book!
   updateEmployee(updateEmployeeInput: UpdateEmployeeInput!): Employee!
@@ -122,8 +123,8 @@ input PaginationInput {
 type Query {
   airLine(id: String!): AirLine!
   airLines(paginationInput: PaginationInput!): [AirLine!]!
-  book(id: Int!): Book!
-  employee(id: Int!): Employee!
+  book(id: String!): Book!
+  employee(id: String!): Employee!
   employees: [Employee!]!
   fightStaff(id: Int!): FlightStaff!
   flightMangementById(id: String!): FlightEntity!
@@ -167,7 +168,7 @@ input UpdateBookInput {
 input UpdateEmployeeInput {
   assigned_flights: CreateFightStaffInput
   email: String
-  id: Int!
+  id: String!
   name: String
   role: staff_Roles
 }
@@ -175,7 +176,7 @@ input UpdateEmployeeInput {
 input UpdateFightStaffInput {
   employeeID: String
   fight_id: String
-  id: Int!
+  id: String!
   name: String
   role: staff_Roles
 }

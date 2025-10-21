@@ -1,3 +1,4 @@
+'use strict';
 require('dotenv').config({
   path: '/Volumes/Data/backend projects/airport-api/.env',
 });
@@ -18,7 +19,6 @@ async function bootstrap() {
       always: true,
     }),
   );
-
 
   await app.listen(process.env.PORT ?? 3000);
 }

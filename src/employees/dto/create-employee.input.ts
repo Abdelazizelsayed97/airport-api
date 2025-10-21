@@ -1,6 +1,7 @@
-import { InputType, Int, Field } from '@nestjs/graphql';
-import { staff_Roles } from 'src/enums/crew.roles';
-import { CreateFightStaffInput } from 'src/fight_staff/dto/create-fight_staff.input';
+import { InputType, Field } from '@nestjs/graphql';
+import { staff_Roles } from 'enums/crew.roles';
+import { CreateFightStaffInput } from 'fight_staff/dto/create-fight_staff.input';
+
 
 
 @InputType()

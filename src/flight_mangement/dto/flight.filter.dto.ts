@@ -1,12 +1,11 @@
-import { Field, InputType } from "@nestjs/graphql";
-
+import { Field, InputType } from '@nestjs/graphql';
 
 @InputType()
 export class FlightsFilterInput {
-    @Field(() => String)
-    name: string;
-    @Field(() => String)
-    passport_number: String;
-    @Field(() => String)
-    airLine: string;
+  @Field(() => String)
+  name: string;
+  @Field(() => String)
+  passport_number: string;
+  @Field(() => String)
+  airLine: string;
 }

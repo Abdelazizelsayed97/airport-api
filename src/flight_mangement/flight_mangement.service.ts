@@ -3,9 +3,10 @@ import { CreateFlightMangementInput } from './dto/create-flight_mangement.input'
 import { UpdateFlightMangementInput } from './dto/update-flight_mangement.input';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import PaginationInput from 'src/pagination/pagination.dto';
 import { FlightsFilterInput } from './dto/flight.filter.dto';
 import FlightEntity from './entities/flight.entity';
+import { pubSub } from './subscriptions/flight.subscription.resolver';
+import PaginationInput from '../pagination/pagination.dto';
 
 @Injectable()
 export class FlightMangementService {
@@ -23,7 +24,7 @@ export class FlightMangementService {
     if (existing) {
       throw new Error('There is an existing flight');
     }
-    let newFlight = this.flightManageRepo.create({
+    const newFlight = this.flightManageRepo.create({
       ...input,
     });
     await this.flightManageRepo.save(newFlight);
@@ -38,13 +39,11 @@ export class FlightMangementService {
     Object.entries(filter || {}).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
         where[key] =
-          typeof value === 'string'
-            ? value
-            : ((value as any).toString?.() ?? value);
+          typeof value === 'string' ? value : (value.toString?.() ?? value);
       }
     });
 
-    const [flights, count] = await this.flightManageRepo.findAndCount({
+    const [flights] = await this.flightManageRepo.findAndCount({
       skip: (pagination.page - 1) * pagination.limit,
       take: pagination.limit,
       where,
@@ -80,7 +79,10 @@ export class FlightMangementService {
       throw new Error("This flight doesn't exist or departed");
     }
     Object.assign(flight, updateFlightMangementInput);
-    return this.flightManageRepo.save(flight);
+
+    await this.flightManageRepo.save(flight);
+    pubSub.publish('flightStatus', { flight: flight });
+    return flight;
   }
 
   async cancel(id: string): Promise<FlightEntity> {

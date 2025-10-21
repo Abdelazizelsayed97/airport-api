@@ -2,15 +2,17 @@ import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { FlightMangementService } from './flight_mangement.service';
 import { CreateFlightMangementInput } from './dto/create-flight_mangement.input';
 import { UpdateFlightMangementInput } from './dto/update-flight_mangement.input';
-import PaginationInput from 'src/pagination/pagination.dto';
 import { FlightsFilterInput } from './dto/flight.filter.dto';
 import { UseGuards } from '@nestjs/common';
-import { RolesGuard } from 'src/users/users.guards/role.guard';
-import { AuthGuard } from 'src/auth/guard/auth.guard';
-import { Reflector } from '@nestjs/core';
-import { UsersRoles } from 'src/enums/user.roles';
-import { Roles } from 'src/auth/decorators/auth.decorator';
 import FlightEntity from './entities/flight.entity';
+import { Roles } from 'auth/decorators/auth.decorator';
+import { CurrentUser } from 'auth/decorators/current-user.decorator';
+import { AuthGuard } from 'auth/guard/auth.guard';
+import { UsersRoles } from 'enums/user.roles';
+import PaginationInput from 'pagination/pagination.dto';
+import { User } from 'users/entities/user.entity';
+import { RolesGuard } from 'users/users.guards/role.guard';
+import { sout } from 'users/users.service';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Roles(UsersRoles.admin, UsersRoles.staff)
@@ -24,7 +26,9 @@ export class FlightMangementResolver {
   createFlight(
     @Args('createFlightMangementInput')
     createFlightMangementInput: CreateFlightMangementInput,
+    @CurrentUser() user: User,
   ) {
+    sout(user);
     return this.flightMangementService.create(createFlightMangementInput);
   }
 

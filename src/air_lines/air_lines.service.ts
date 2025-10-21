@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { CreateAirLineInput } from './dto/create-air_line.input';
-import { UpdateAirLineInput } from './dto/update-air_line.input';
-import PaginationInput from 'src/pagination/pagination.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AirLine } from './entities/air_line.entity';
 import { Repository } from 'typeorm';
+
+import { CreateAirLineInput } from './dto/create-air_line.input';
+import { UpdateAirLineInput } from './dto/update-air_line.input';
+import PaginationInput from 'pagination/pagination.dto';
 
 @Injectable()
 export class AirLinesService {
@@ -18,8 +19,10 @@ export class AirLinesService {
     return {} as AirLine;
   }
 
-  findAll(paginationInput: PaginationInput) {
-    return `This action returns all airLines`;
+  findAll(
+    paginationInput: PaginationInput /**paginationInput: PaginationInput */,
+  ) {
+    return this.airLineRepository.find();
   }
 
   findOne(id: string) {

@@ -6,10 +6,9 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Field, Int, ObjectType, GraphQLTimestamp } from '@nestjs/graphql';
-
-import { FlightStaff } from 'src/fight_staff/entities/fight_staff.entity';
-import { flight_status } from 'src/enums/flight.status';
-import { User } from 'src/users/entities/user.entity';
+import { flight_status } from '../../enums/flight.status';
+import { User } from '../../users/entities/user.entity';
+import { FlightStaff } from 'fight_staff/entities/fight_staff.entity';
 
 @ObjectType()
 @Entity()
@@ -58,8 +57,8 @@ export default class FlightEntity {
   @OneToOne(() => FlightStaff, (flightStaff) => flightStaff.flight)
   assigned: FlightStaff;
 
-  @Field(() => [User])
   @OneToMany(() => User, (user) => user.bookingList)
+  @Field(() => [User], { nullable: true })
   passagngers: User[];
   constructor() {}
 }

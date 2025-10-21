@@ -1,35 +1,33 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
 import { GqlExecutionContext } from '@nestjs/graphql';
-import { sout, UsersServices } from '../users.service';
-import { role_key } from 'src/auth/decorators/auth.decorator';
-import { JwtModule, JwtService } from '@nestjs/jwt';
-import { CurrentUser } from 'src/tests/current.user';
+import { role_key } from '../../auth/decorators/auth.decorator';
+import { Reflector } from '@nestjs/core';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
-  constructor(
-    private reflector: Reflector,
-    private readonly userService: UsersServices,
-  ) {}
+  constructor(private reflector: Reflector) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const gql = GqlExecutionContext.create(context);
+    const ctx = gql.getContext();
+    const args = gql.getArgs();
 
     const requiredRoles = this.reflector.get<string[]>(
       role_key,
       context.getHandler(),
     );
 
-    // sout(gql.getContext().req);
-    const input = gql.getArgs()['createBookInput'];
-    const headers = gql.getContext().req.headers.authorization.split(' ')[1];
-
-    sout('this is token' + headers);
-    CurrentUser(headers);
-    // sout({ requiredRoles, userRole: input.role });
-
     if (!requiredRoles) return true;
 
-    return requiredRoles.includes(input.role);
+    const user = ctx.req.user;
+    if (!user) {
+      return false;
+    }
+
+    // Allow access if the user is accessing their own data (generic "me" check)
+    if (args.id === user.id || (args.input && args.input.userId === user.id)) {
+      return true;
+    }
+
+    return requiredRoles.includes(user.role);
   }
 }

@@ -1,4 +1,4 @@
-wimport { Test, TestingModule } from '@nestjs/testing';
+import { Test, TestingModule } from '@nestjs/testing';
 import { UsersResolver } from './users.resolver';
 import { UsersServices } from './users.service';
 
