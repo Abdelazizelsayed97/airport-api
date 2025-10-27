@@ -1,4 +1,4 @@
-import { Module, forwardRef } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { BookService } from './book.service';
 import { BookResolver } from './book.resolver';
 import { Book } from './entities/book.entity';

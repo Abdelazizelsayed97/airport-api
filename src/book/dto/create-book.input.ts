@@ -14,7 +14,7 @@ export class CreateBookInput {
 
   @Field(() => UsersRoles)
   @IsString()
-  role: UsersRoles; 
+  role: UsersRoles;
 
   @Field(() => String)
   @IsString()

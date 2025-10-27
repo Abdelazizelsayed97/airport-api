@@ -1,3 +1,1 @@
-export class SuperAdminService {
-    
-}
+export class SuperAdminService {}

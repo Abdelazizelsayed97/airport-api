@@ -9,12 +9,8 @@ import { AuthGuard } from 'auth/guard/auth.guard';
 import { UsersRoles } from 'enums/user.roles';
 import { RolesGuard } from 'users/users.guards/role.guard';
 
-
-
-
-
-@UseGuards(AuthGuard, RolesGuard)
-@Roles(UsersRoles.admin, UsersRoles.staff)
+// @UseGuards(AuthGuard, RolesGuard)
+// @Roles(UsersRoles.admin, UsersRoles.staff)
 @Resolver(() => FlightStaff)
 export class FightStaffResolver {
   constructor(private readonly fightStaffService: FightStaffService) {}

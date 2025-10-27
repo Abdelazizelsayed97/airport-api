@@ -5,15 +5,19 @@ import { BookModule } from './book/book.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { EmployeesModule } from './employees/employees.module';
 import { JwtModule } from '@nestjs/jwt';
 import { join } from 'path';
 import { FightStaffModule } from './fight_staff/fight_staff.module';
-import { AirLinesModule } from './air_lines/air_lines.module';
 import { AuthModule } from './auth/auth.module';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { GraphqlResponseInspector } from './users/inspectors/users.response.inspector';
 import { RolesGuard } from 'users/users.guards/role.guard';
+import { PermissionsModule } from './permissions/permissions.module';
+import { AirLinesModule } from 'air_line/air_line.module';
+import { EmployeesModule } from 'employee/employee.module';
+import { RoleModule } from './role/role.module';
+import { ConfigModule } from '@nestlib/config';
+import { AuthGuard } from 'auth/guard/auth.guard';
 
 @Module({
   imports: [
@@ -35,7 +39,6 @@ import { RolesGuard } from 'users/users.guards/role.guard';
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       fieldResolverEnhancers: ['guards'],
-
       sortSchema: true,
       graphiql: true,
       playground: true,
@@ -43,18 +46,20 @@ import { RolesGuard } from 'users/users.guards/role.guard';
       subscriptions: {
         'graphql-ws': true,
         'subscriptions-transport-ws': {
-          onConnect: (connectionParams: any) => {
+          onConnect: (connectionParams) => {
             console.log(connectionParams.Authorization);
             return { Authorization: connectionParams.Authorization };
           },
         },
       },
     }),
+    ConfigModule.forRoot({
+      files: ['.env'],
+    }),
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '7d' },
-      privateKey: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '7d', algorithm: 'HS256' },
     }),
     FlightMangementModule,
     UsersModule,
@@ -63,6 +68,8 @@ import { RolesGuard } from 'users/users.guards/role.guard';
     AirLinesModule,
     FightStaffModule,
     AuthModule,
+    PermissionsModule,
+    RoleModule,
   ],
   providers: [
     {

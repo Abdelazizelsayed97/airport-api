@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  JoinColumn,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -53,8 +54,11 @@ export default class FlightEntity {
   @Column({ enum: flight_status, type: 'enum' })
   flight_status: flight_status;
 
-  @Field(() => FlightStaff)
-  @OneToOne(() => FlightStaff, (flightStaff) => flightStaff.flight)
+  @Field(() => FlightStaff, { nullable: true })
+  @OneToOne(() => FlightStaff, (flightStaff) => flightStaff.flight, {
+    nullable: true,
+  })
+  @JoinColumn()
   assigned: FlightStaff;
 
   @OneToMany(() => User, (user) => user.bookingList)

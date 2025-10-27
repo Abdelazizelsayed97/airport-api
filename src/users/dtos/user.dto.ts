@@ -1,7 +1,6 @@
 import { Book } from 'book/entities/book.entity';
 import { Expose } from 'class-transformer';
 
-
 export class UserDto {
   @Expose()
   id: string;

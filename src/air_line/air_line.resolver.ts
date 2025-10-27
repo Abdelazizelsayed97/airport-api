@@ -1,5 +1,5 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
-import { AirLinesService } from './air_lines.service';
+import { AirLinesService } from './air_line.service';
 import { AirLine } from './entities/air_line.entity';
 import { CreateAirLineInput } from './dto/create-air_line.input';
 import { UpdateAirLineInput } from './dto/update-air_line.input';
@@ -9,7 +9,7 @@ import { AuthGuard } from '../auth/guard/auth.guard';
 import { Roles } from '../auth/decorators/auth.decorator';
 import { RolesGuard } from '../users/users.guards/role.guard';
 import { UsersRoles } from '../enums/user.roles';
-@Roles(UsersRoles.admin)
+@Roles('admin')
 @UseGuards(AuthGuard, RolesGuard)
 @Resolver(() => AirLine)
 export class AirLinesResolver {
@@ -34,7 +34,7 @@ export class AirLinesResolver {
   airline(@Args('id', { type: () => String }) id: string) {
     return this.airLinesService.findOne(id);
   }
-
+  ap;
   @Mutation(() => AirLine)
   updateAirLine(
     @Args('updateAirLineInput') updateAirLineInput: UpdateAirLineInput,

@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { EmployeesService } from './employees.service';
+import { EmployeesService } from './employee.service';
 
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Employee } from './entities/employee.entity';
-import { EmployeesResolver } from './employees.resolver';
+import { EmployeesResolver } from './employee.resolver';
 import { UsersModule } from 'users/users.module';
 
 @Module({

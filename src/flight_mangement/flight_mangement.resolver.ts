@@ -13,16 +13,18 @@ import PaginationInput from 'pagination/pagination.dto';
 import { User } from 'users/entities/user.entity';
 import { RolesGuard } from 'users/users.guards/role.guard';
 import { sout } from 'users/users.service';
+import { PermissionsD } from 'permissions/decorators/permissions.decorator';
 
-@UseGuards(AuthGuard, RolesGuard)
-@Roles(UsersRoles.admin, UsersRoles.staff)
+// @UseGuards(AuthGuard, RolesGuard)
+// @Roles(UsersRoles.admin, UsersRoles.super_admin)
 @Resolver(() => FlightEntity)
 export class FlightMangementResolver {
   constructor(
     private readonly flightMangementService: FlightMangementService,
   ) {}
-  @Roles(UsersRoles.admin)
+
   @Mutation(() => FlightEntity, { name: 'createFlight' })
+  @PermissionsD('admin', 'super_admin')
   createFlight(
     @Args('createFlightMangementInput')
     createFlightMangementInput: CreateFlightMangementInput,
@@ -32,8 +34,7 @@ export class FlightMangementResolver {
     return this.flightMangementService.create(createFlightMangementInput);
   }
 
-  @Roles(UsersRoles.admin)
-  @UseGuards(AuthGuard, RolesGuard)
+  // @UseGuards(AuthGuard)
   @Query(() => [FlightEntity], {
     name: 'getAllFlights',
     nullable: true,
@@ -44,6 +45,7 @@ export class FlightMangementResolver {
     @Args('filter', { type: () => FlightsFilterInput, nullable: true })
     filter: FlightsFilterInput,
   ): Promise<FlightEntity[]> {
+    sout('-----------------');
     return this.flightMangementService.findAll(pagination, filter);
   }
 
@@ -53,9 +55,8 @@ export class FlightMangementResolver {
   ): Promise<FlightEntity | null> {
     return this.flightMangementService.findOne(id);
   }
-
-  @Roles(UsersRoles.admin)
-  @UseGuards(AuthGuard, RolesGuard)
+  // @PermissionsD('admin', 'super_admin')
+  // @UseGuards(AuthGuard, RolesGuard)
   @Mutation(() => FlightEntity)
   updateFlightMangement(
     @Args('updateFlightMangementInput')
@@ -66,8 +67,7 @@ export class FlightMangementResolver {
       updateFlightMangementInput,
     );
   }
-
-  @Roles(UsersRoles.admin)
+  // @PermissionsD('admin', 'super_admin')
   @Mutation(() => FlightEntity)
   removeFlightMangement(@Args('id', { type: () => String }) id: string) {
     return this.flightMangementService.cancel(id);

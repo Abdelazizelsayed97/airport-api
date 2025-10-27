@@ -11,18 +11,18 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
   @Field(() => String)
-  @Column()
+  @Column({ unique: true })
   email: string;
   @Field(() => String)
   @Column()
   name: string;
   @Field(() => UsersRoles)
   @Column({
-    type: 'enum',
-    enum: UsersRoles,
-    default: UsersRoles.passenger
+    // type: 'enum',
+    // enum: UsersRoles,
   })
-  role: UsersRoles;
+  role: string;
+
   @Field()
   @Column()
   @Exclude()
@@ -31,7 +31,6 @@ export class User {
   @OneToMany(() => Book, (booking) => booking.user, { nullable: true })
   bookingList?: Book[];
   @Field(() => String)
-  @Column({})
-  // @Exclude()
+  @Column()
   token: string;
 }

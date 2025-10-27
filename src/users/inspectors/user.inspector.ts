@@ -20,7 +20,6 @@ export class BookingInspector implements NestInterceptor {
     const role = request.headers.role;
     if (role) {
       request.role = role;
-      sout('ytututtutituituo' + role);
     }
     return next.handle();
   }

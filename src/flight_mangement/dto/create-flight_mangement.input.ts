@@ -32,11 +32,10 @@ export class CreateFlightMangementInput {
   @Field()
   @IsNotEmpty()
   available_seats: number;
-  @Field(() => String)
+  @Field(() => flight_status, { nullable: true })
   @IsNotEmpty()
   @IsString()
   flight_status: flight_status;
-  @Field(() => CreateFightStaffInput)
-  @IsNotEmpty()
-  assignedStaff: CreateFightStaffInput;
+  @Field(() => CreateFightStaffInput, { nullable: true })
+  assignedStaff?: CreateFightStaffInput;
 }

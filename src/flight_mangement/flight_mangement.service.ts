@@ -7,6 +7,7 @@ import { FlightsFilterInput } from './dto/flight.filter.dto';
 import FlightEntity from './entities/flight.entity';
 import { pubSub } from './subscriptions/flight.subscription.resolver';
 import PaginationInput from '../pagination/pagination.dto';
+import { sout } from 'users/users.service';
 
 @Injectable()
 export class FlightMangementService {
@@ -20,7 +21,10 @@ export class FlightMangementService {
     }
     const existing = await this.flightManageRepo.findOne({
       where: { flight_number: input.flight_number },
+
+      loadRelationIds: true,
     });
+    sout('ttttttttt --- ttttttt' + existing?.airline);
     if (existing) {
       throw new Error('There is an existing flight');
     }
@@ -35,25 +39,17 @@ export class FlightMangementService {
     pagination: PaginationInput,
     filter: FlightsFilterInput,
   ): Promise<FlightEntity[]> {
-    const where: Partial<FlightEntity> = {};
-    Object.entries(filter || {}).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        where[key] =
-          typeof value === 'string' ? value : (value.toString?.() ?? value);
-      }
-    });
-
-    const [flights] = await this.flightManageRepo.findAndCount({
-      skip: (pagination.page - 1) * pagination.limit,
+    const flight = await this.flightManageRepo.findAndCount({
+      skip: ((pagination.page || 1) - 1) * pagination.limit,
       take: pagination.limit,
-      where,
+
       relations: ['assigned'],
     });
 
-    if (!flights || flights.length === 0) {
+    if (!flight) {
       throw new Error("This flight doesn't exist or departed");
     }
-    return flights;
+    return flight[0];
   }
 
   async findOne(id: string): Promise<FlightEntity> {

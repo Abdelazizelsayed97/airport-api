@@ -8,6 +8,11 @@ type AirLine {
   name: String!
 }
 
+input AssignToFlightDto {
+  employeeId: String!
+  flightId: String!
+}
+
 type Book {
   flightNumber: String!
   id: String!
@@ -22,16 +27,9 @@ input CreateAirLineInput {
 
 input CreateBookInput {
   flightNumber: String!
-  role: UserBasedRole!
+  role: UsersRoles!
   seatNumber: String!
   userId: String!
-}
-
-input CreateEmployeeInput {
-  assigned_flights: CreateFightStaffInput
-  email: String!
-  name: String!
-  role: staff_Roles!
 }
 
 input CreateFightStaffInput {
@@ -44,13 +42,13 @@ input CreateFightStaffInput {
 input CreateFlightMangementInput {
   airline: String!
   arrival_time: Timestamp!
-  assignedStaff: CreateFightStaffInput!
+  assignedStaff: CreateFightStaffInput
   available_seats: Float!
   departure_airport: String!
   departure_time: Timestamp!
   destination_airport: String!
   flight_number: String!
-  flight_status: String!
+  flight_status: flight_status
 }
 
 type Employee {
@@ -67,7 +65,7 @@ type Employee {
 type FlightEntity {
   airline: String!
   arrival_time: Timestamp!
-  assigned: FlightStaff!
+  assigned: FlightStaff
   available_seats: Int!
   departure_airport: String!
   departure_time: Timestamp!
@@ -84,7 +82,6 @@ type FlightStaff {
   flight: FlightEntity
   id: String!
   name: String!
-  role: String!
 }
 
 input FlightsFilterInput {
@@ -94,14 +91,14 @@ input FlightsFilterInput {
 }
 
 type Mutation {
-  assignEmployee(createEmployeeInput: CreateEmployeeInput!): Employee!
+  assignEmployee(assignToFlightInput: AssignToFlightDto!): Employee!
   createAirLine(createAirLineInput: CreateAirLineInput!): AirLine!
   createBook(createBookInput: CreateBookInput!): Book!
   createFightStaff(createFightStaffInput: CreateFightStaffInput!): FlightStaff!
   createFlight(createFlightMangementInput: CreateFlightMangementInput!): FlightEntity!
   deleteUser(id: String!): User!
   login(loginInput: SignInDto!): User!
-  register(registerInput: SignUpDto!): User!
+  register(registerInput: RegisterInput!): User!
   removeAirLine(id: String!): AirLine!
   removeBook(id: String!): Book!
   removeEmployee(id: String!): Employee!
@@ -117,7 +114,14 @@ type Mutation {
 
 input PaginationInput {
   limit: Int! = 20
-  page: Int! = 1
+  page: Int = 1
+}
+
+type Permission {
+  description: String!
+  id: String!
+  permission: String!
+  roles: [Role!]!
 }
 
 type Query {
@@ -130,20 +134,27 @@ type Query {
   flightMangementById(id: String!): FlightEntity!
   getAllFlights(filter: FlightsFilterInput, pagination: PaginationInput): [FlightEntity!]
   getUserById(id: String!): User!
+  me: User!
   users(paginate: PaginationInput!): [User!]!
+}
+
+input RegisterInput {
+  email: String!
+  name: String!
+  passportNumber: String!
+  password: String!
+  role: UsersRoles!
+}
+
+type Role {
+  id: String!
+  name: String!
+  permissions: [Permission!]
 }
 
 input SignInDto {
   email: String!
   password: String!
-}
-
-input SignUpDto {
-  email: String!
-  name: String!
-  passportNumber: String!
-  password: String!
-  role: UserBasedRole!
 }
 
 """
@@ -160,13 +171,12 @@ input UpdateAirLineInput {
 input UpdateBookInput {
   flightNumber: String
   id: String!
-  role: UserBasedRole
+  role: UsersRoles
   seatNumber: String
   userId: String
 }
 
 input UpdateEmployeeInput {
-  assigned_flights: CreateFightStaffInput
   email: String
   id: String!
   name: String
@@ -190,7 +200,7 @@ input UpdateFlightMangementInput {
   departure_time: Timestamp
   destination_airport: String
   flight_number: String
-  flight_status: String
+  flight_status: flight_status
   id: Int!
 }
 
@@ -200,7 +210,7 @@ input UpdateUserInput {
   name: String
   passportNumber: String
   password: String
-  role: UserBasedRole
+  role: UsersRoles
 }
 
 type User {
@@ -209,14 +219,15 @@ type User {
   id: String!
   name: String!
   password: String!
-  role: UserBasedRole!
+  role: UsersRoles!
   token: String!
 }
 
-enum UserBasedRole {
+enum UsersRoles {
   admin
-  passenger
   staff
+  super_admin
+  user
 }
 
 """The status of the flight"""

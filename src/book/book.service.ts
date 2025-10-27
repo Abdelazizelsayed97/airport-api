@@ -30,9 +30,9 @@ export class BookService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    if (user.role !== UsersRoles.passenger) {
-      throw new NotFoundException('Forbidden');
-    }
+    // if (user.role !== UsersRoles.passenger) {
+    //   throw new NotFoundException('Forbidden');
+    // }
 
     const book = this.bookRepository.create({
       ...createBookInput,

@@ -1,21 +1,19 @@
 import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
-import { UsersServices } from './users.service';
+import { sout, UsersServices } from './users.service';
 import { User } from './entities/user.entity';
 import { UpdateUserInput } from '../auth/dto/update-user.input';
-
 import { RolesGuard } from './users.guards/role.guard';
 import { UseGuards, UseInterceptors } from '@nestjs/common';
-
-
-
 import { GraphqlResponseInspector } from './inspectors/users.response.inspector';
 import { Roles } from 'auth/decorators/auth.decorator';
 import { AuthGuard } from 'auth/guard/auth.guard';
-import { UsersRoles } from 'enums/user.roles';
 import PaginationInput from 'pagination/pagination.dto';
+import { CurrentUser } from 'auth/decorators/current-user.decorator';
+import { UsersRoles } from 'enums/user.roles';
 
-// @Roles(UsersRoles.admin, UsersRoles.staff)
-// @UseGuards(AuthGuard, RolesGuard)
+// @UseGuards(AuthGuard, RolesGuard, PermissionsGuard)
+// @Roles('super_admin', 'admin', 'staff')
+// @PermissionsD('super_admin', 'admin', 'staff')
 
 @Resolver(() => User)
 @UseInterceptors(GraphqlResponseInspector)
@@ -41,21 +39,18 @@ export class UsersResolver {
   updateUser(@Args('updateUserInput') updateUserInput: UpdateUserInput) {
     return this.usersService.update(updateUserInput.id, updateUserInput);
   }
-  @Roles(UsersRoles.passenger, UsersRoles.admin)
-  @UseGuards(AuthGuard, RolesGuard)
+
+  // @UseGuards(AuthGuard, RolesGuard)
   @Mutation(() => User, { name: 'deleteUser' })
   removeUser(@Args('id', { type: () => String }) id: string) {
     return this.usersService.remove(id);
   }
+  @Roles(UsersRoles.admin)
+  @UseGuards(AuthGuard, RolesGuard)
+  @Query(() => User)
+  async me(@CurrentUser() ctx) {
+    // const user = ctx.user.id;
+    sout('+++++++++++++++++++++   ' + ctx['id']);
+    return this.usersService.findOne(ctx['id']);
+  }
 }
-
-// class UserInsterceptor implements NestInterceptor {
-//   intercept(
-//     context: ExecutionContext,
-//     next: CallHandler<any>,
-//   ): Observable<any> | Promise<Observable<any>> {
-//     const gqlctx = GqlExecutionContext.create(context);
-//     gqlctx.getContext().req.role = 'passenger';
-//     throw new Error('Method not implemented.');
-//   }
-// }

@@ -4,22 +4,18 @@ import { Book } from './entities/book.entity';
 import { CreateBookInput } from './dto/create-book.input';
 import { UpdateBookInput } from './dto/update-book.input';
 import { UseGuards } from '@nestjs/common';
-import { UsersRoles } from '../enums/user.roles';
 import { Roles } from '../auth/decorators/auth.decorator';
 import { AuthGuard } from '../auth/guard/auth.guard';
 import PaginationInput from '../pagination/pagination.dto';
 import { RolesGuard } from '../users/users.guards/role.guard';
 import { sout } from '../users/users.service';
-
-
-
-
+import { UsersRoles } from 'enums/user.roles';
 
 @Resolver(() => Book)
 export class BookResolver {
   constructor(private readonly bookService: BookService) {}
 
-  @Roles(UsersRoles.passenger)
+  @Roles(UsersRoles.user)
   @UseGuards(AuthGuard, RolesGuard)
   @Mutation(() => Book)
   async createBook(
@@ -51,7 +47,7 @@ export class BookResolver {
   }
 
   @Mutation(() => Book)
-  updateBook(@Args('updateBookInput')  updateBookInput: UpdateBookInput) {
+  updateBook(@Args('updateBookInput') updateBookInput: UpdateBookInput) {
     return this.bookService.update(updateBookInput.id, updateBookInput);
   }
 
@@ -60,4 +56,3 @@ export class BookResolver {
     return this.bookService.remove(id);
   }
 }
-

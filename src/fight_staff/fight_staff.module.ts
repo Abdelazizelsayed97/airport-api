@@ -6,8 +6,6 @@ import { FlightStaff } from './entities/fight_staff.entity';
 import { FlightMangementModule } from 'flight_mangement/flight_mangement.module';
 import { UsersModule } from 'users/users.module';
 
-
-
 @Module({
   providers: [FightStaffResolver, FightStaffService],
   imports: [

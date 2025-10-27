@@ -6,7 +6,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import FlightEntity from './entities/flight.entity';
 import { UsersModule } from 'users/users.module';
 
-
 @Module({
   providers: [FlightMangementResolver, FlightMangementService],
   exports: [FlightMangementService],
