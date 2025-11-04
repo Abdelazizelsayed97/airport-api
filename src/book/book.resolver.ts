@@ -9,14 +9,14 @@ import { AuthGuard } from '../auth/guard/auth.guard';
 import PaginationInput from '../pagination/pagination.dto';
 import { RolesGuard } from '../users/users.guards/role.guard';
 import { sout } from '../users/users.service';
-import { UsersRoles } from 'enums/user.roles';
+import { UsersRoles } from '@core/enums/user.roles';
 
 @Resolver(() => Book)
 export class BookResolver {
   constructor(private readonly bookService: BookService) {}
 
   @Roles(UsersRoles.user)
-  @UseGuards(AuthGuard, RolesGuard)
+  @UseGuards(AuthGuard)
   @Mutation(() => Book)
   async createBook(
     @Args('createBookInput') createBookInput: CreateBookInput,

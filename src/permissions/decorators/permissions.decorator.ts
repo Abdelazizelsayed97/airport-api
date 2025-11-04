@@ -1,11 +1,8 @@
 import { SetMetadata } from '@nestjs/common';
-import { action } from 'enums/permissions.action';
-import { Permission } from 'permissions/entities/permission.entity';
+import { action } from '@core/enums/permissions.action';
 
-const permission_key = 'permissions';
+export const permission_key = 'permissions';
 
 export const PermissionsD = (
-  ...permissions:
-    | action[]
-    | [string, ...(string[] | [Permission, ...Permission[]])]
+  ...permissions: [action, ...action[]] | [string, ...string[]]
 ) => SetMetadata(permission_key, permissions);

@@ -8,8 +8,7 @@ import { CreateBookInput } from './dto/create-book.input';
 import { UpdateBookInput } from './dto/update-book.input';
 import { Book } from './entities/book.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UsersRoles } from '../enums/user.roles';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { UsersRoles } from '../core/enums/user.roles';
 
 import { Repository } from 'typeorm';
 

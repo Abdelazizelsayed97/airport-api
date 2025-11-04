@@ -1,37 +1,54 @@
-// import { Injectable } from '@nestjs/common';
-// import { InjectRepository } from '@nestjs/typeorm';
-// import { UsersRoles } from 'enums/user.roles';
-// import { Role } from 'role/entities/role.entity';
-// import { Repository } from 'typeorm';
-// import { User } from 'users/entities/user.entity';
+import { Injectable, OnModuleInit } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { UsersRoles } from '@core/enums/user.roles';
+import { action } from '@core/enums/permissions.action';
+import { Role } from 'role/entities/role.entity';
+import { Repository } from 'typeorm';
+import { User } from 'users/entities/user.entity';
+import { hashSync } from 'bcrypt';
 
-// @Injectable()
-// export class CreateSuperAdminSeeder {
-//   constructor(
-//     @InjectRepository(User) private userRepository: Repository<User>,
-//     @InjectRepository(Role) private roleRepository: Repository<Role>,
-//   ) {}
+@Injectable()
+export class CreateSuperAdminSeeder implements OnModuleInit {
+  constructor(
+    @InjectRepository(User) private userRepository: Repository<User>,
+    @InjectRepository(Role) private roleRepository: Repository<Role>,
+  ) {}
 
-//   async seed() {
-//     const superAdminRole = await this.roleRepository.findOne({
-//       where: { name: UsersRoles.super_admin },
-//     });
-//     const adminUser = await this.userRepository.findOne({
-//       where: { email: 'super-admin@example.com' },
-//     });
+  async onModuleInit() {
+    await this.seed();
+  }
 
-//     if (!adminUser) {
-//       const newUser = this.userRepository.create({
-//         email: 'super-admin@example.com',
-//         password: 'hashed-password', // Use a secure hashing method
-//       });
-//       const savedUser = await this.userRepository.save(newUser);
+  async seed() {
+    let superAdminRole = await this.roleRepository.findOne({
+      where: { name: UsersRoles.super_admin },
+    });
 
-//       const userRoles = new UsersRoles();
-//       userRoles.user = savedUser;
-//       userRoles.role = superAdminRole;
+    if (!superAdminRole) {
+      const allPermissions = Object.values(action);
+      superAdminRole = this.roleRepository.create({
+        name: UsersRoles.super_admin,
+        permissions: allPermissions,
+      });
+      await this.roleRepository.save(superAdminRole);
+      console.log('Super admin role created with all permissions');
+    }
 
-//       await this.userRepository.manager.save(userRoles);
-//     }
-//   }
-// }
+    const adminUser = await this.userRepository.findOne({
+      where: { email: 'super-admin@example.com' },
+    });
+
+    if (!adminUser) {
+      const hashedPassword = hashSync('SuperAdmin123!', 10);
+      const token = 'initial-token';
+      const newUser = this.userRepository.create({
+        email: 'super-admin@app.com',
+        name: 'Super Admin',
+        password: hashedPassword,
+        role: superAdminRole,
+        token: token,
+      });
+      await this.userRepository.save(newUser);
+      console.log('Super admin user created');
+    }
+  }
+}

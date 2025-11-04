@@ -1,17 +1,19 @@
-import { Injectable, UseInterceptors } from '@nestjs/common';
+import { Injectable, UseGuards } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { UpdateUserInput } from 'auth/dto/update-user.input';
-import { UsersRoles } from 'enums/user.roles';
+import { UsersRoles } from '@core/enums/user.roles';
 import PaginationInput from 'pagination/pagination.dto';
 import { RegisterInput } from 'auth/dto/sign-up.input';
 import { JwtService } from '@nestjs/jwt';
 import { SignInDto } from 'auth/dto/sign-in.input';
 import { RoleService } from 'role/role.service';
 import { compare, hashSync } from 'bcrypt';
-import { GraphqlResponseInspector } from './inspectors/users.response.inspector';
-import { UUID } from 'typeorm/driver/mongodb/bson.typings.js';
+import { action } from '@core/enums/permissions.action';
+import { PermissionsGuard } from 'permissions/guard/permissions.guard';
+import { FirebaseService } from 'firebase/firebase.services';
+import { PermissionsD } from 'permissions/decorators/permissions.decorator';
 
 @Injectable()
 export class UsersServices {
@@ -19,8 +21,9 @@ export class UsersServices {
     @InjectRepository(User) private userRepository: Repository<User>,
     private jwtService: JwtService,
     readonly roleService: RoleService,
+    readonly firebaseServices: FirebaseService,
   ) {}
-
+  @PermissionsD(UsersRoles.admin, action.create)
   async createUser(input: RegisterInput) {
     const isUserExist = await this.userRepository.findOne({
       where: { email: input.email },
@@ -37,11 +40,13 @@ export class UsersServices {
     sout('createUser');
     const user = this.userRepository.create({
       ...input,
+      role: await this.roleService.findOne(input.role),
     });
     sout(user);
 
     user.token = await this.generateToken(user.id);
     sout(user);
+    await this.firebaseServices.sendNotification(user);
     await this.userRepository.save(user);
     return user;
   }
@@ -49,6 +54,7 @@ export class UsersServices {
     const user = await this.userRepository.findOne({
       where: { email: input.email },
     });
+    sout(user);
     if (!user) {
       throw new Error("This user doesn't exist");
     }
@@ -56,6 +62,7 @@ export class UsersServices {
     if (await compare(hashedPassword, user.password)) {
       throw new Error('Invalid credentials');
     } else {
+      user.role = await this.roleService.findByName(user.role.name);
       user.token = await this.generateToken(user.id);
       await this.userRepository.save(user);
       return user;
@@ -70,6 +77,8 @@ export class UsersServices {
     return token;
   }
 
+  @PermissionsD(UsersRoles.admin, action.create)
+  @UseGuards(PermissionsGuard)
   async getAllUsers(pagination: PaginationInput): Promise<User[]> {
     return this.userRepository.find({
       take: pagination.limit,
@@ -77,23 +86,20 @@ export class UsersServices {
     });
   }
   // @UseInterceptors(GraphqlResponseInspector)
+  @PermissionsD(action.view_user)
+  @UseGuards(PermissionsGuard)
   async findOne(id: string): Promise<User> {
+    sout('findOne');
     const user = await this.userRepository.findOne({
       where: { id: id },
       relations: ['bookingList'],
+      cache: true,
     });
 
     if (!user) {
       throw new Error("This user doesn't exist");
     }
 
-    return user;
-  }
-  async getByRole(role: UsersRoles): Promise<User> {
-    const user = await this.userRepository.findOne({ where: { role: role } });
-    if (!user) {
-      throw new Error("This user doesn't exist");
-    }
     return user;
   }
 
@@ -117,23 +123,6 @@ export class UsersServices {
         message: 'User deleted successfully',
       };
     });
-  }
-  private async seedAdmin() {
-    const user = await this.userRepository.findOne({
-      where: { email: 'super@admin.com' },
-    });
-
-    if (!user) {
-      const admin = await this.userRepository.create({
-        id: UUID.generate().buffer.toString(),
-        name: 'AppAdmin',
-        email: 'super@admin.com',
-        password: 'AppAdmin1234',
-        role: UsersRoles.super_admin,
-        token: await this.generateToken(user!.id),
-      });
-      await this.userRepository.save(admin);
-    }
   }
 }
 

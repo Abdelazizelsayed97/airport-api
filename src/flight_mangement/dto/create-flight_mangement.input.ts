@@ -1,6 +1,6 @@
 import { InputType, Field, GraphQLTimestamp } from '@nestjs/graphql';
 import { IsDate, IsNotEmpty, IsString } from 'class-validator';
-import { flight_status } from 'enums/flight.status';
+import { flight_status } from '@core/enums/flight.status';
 import { CreateFightStaffInput } from 'fight_staff/dto/create-fight_staff.input';
 import { Timestamp } from 'typeorm';
 

@@ -8,7 +8,7 @@ import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../auth/guard/auth.guard';
 import { Roles } from '../auth/decorators/auth.decorator';
 import { RolesGuard } from '../users/users.guards/role.guard';
-import { UsersRoles } from '../enums/user.roles';
+import { UsersRoles } from '../core/enums/user.roles';
 @Roles('admin')
 @UseGuards(AuthGuard, RolesGuard)
 @Resolver(() => AirLine)

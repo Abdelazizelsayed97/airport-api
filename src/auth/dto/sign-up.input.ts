@@ -1,5 +1,5 @@
 import { InputType, Field, ObjectType } from '@nestjs/graphql';
-import { UsersRoles } from 'enums/user.roles';
+import { UsersRoles } from '@core/enums/user.roles';
 import { Role } from 'role/entities/role.entity';
 
 @InputType()
@@ -15,4 +15,6 @@ export class RegisterInput {
   name: string;
   @Field(() => UsersRoles)
   role: UsersRoles;
+  @Field(() => String)
+  fcmToken: string;
 }

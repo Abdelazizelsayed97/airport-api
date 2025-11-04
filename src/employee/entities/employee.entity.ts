@@ -1,5 +1,5 @@
 import { ObjectType, Field } from '@nestjs/graphql';
-import { staff_Roles } from 'enums/crew.roles';
+import { staff_Roles } from '@core/enums/crew.roles';
 import { FlightStaff } from 'fight_staff/entities/fight_staff.entity';
 import {
   Column,

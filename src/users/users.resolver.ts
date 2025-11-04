@@ -5,18 +5,18 @@ import { UpdateUserInput } from '../auth/dto/update-user.input';
 import { RolesGuard } from './users.guards/role.guard';
 import { UseGuards, UseInterceptors } from '@nestjs/common';
 import { GraphqlResponseInspector } from './inspectors/users.response.inspector';
-import { Roles } from 'auth/decorators/auth.decorator';
 import { AuthGuard } from 'auth/guard/auth.guard';
 import PaginationInput from 'pagination/pagination.dto';
 import { CurrentUser } from 'auth/decorators/current-user.decorator';
-import { UsersRoles } from 'enums/user.roles';
+import { PermissionsGuard } from 'permissions/guard/permissions.guard';
+import { PermissionsD } from 'permissions/decorators/permissions.decorator';
+import { action } from '@core/enums/permissions.action';
 
-// @UseGuards(AuthGuard, RolesGuard, PermissionsGuard)
-// @Roles('super_admin', 'admin', 'staff')
-// @PermissionsD('super_admin', 'admin', 'staff')
-
-@Resolver(() => User)
+// @Roles(UsersRoles.super_admin, UsersRoles.admin, UsersRoles.staff)
+@PermissionsD(action.create, action.create_user)
+@UseGuards(AuthGuard, RolesGuard, PermissionsGuard)
 @UseInterceptors(GraphqlResponseInspector)
+@Resolver(() => User)
 export class UsersResolver {
   constructor(private readonly usersService: UsersServices) {}
 
@@ -27,7 +27,8 @@ export class UsersResolver {
   ): Promise<User[]> {
     return this.usersService.getAllUsers(pagination);
   }
-  // @UseGuards(AuthGuard, RolesGuard)
+  @PermissionsD(action.create)
+  @UseGuards(AuthGuard, PermissionsGuard)
   @Query(() => User, { name: 'getUserById' })
   async getUserById(
     @Args('id', { type: () => String }) id: string,
@@ -45,12 +46,12 @@ export class UsersResolver {
   removeUser(@Args('id', { type: () => String }) id: string) {
     return this.usersService.remove(id);
   }
-  @Roles(UsersRoles.admin)
-  @UseGuards(AuthGuard, RolesGuard)
+
   @Query(() => User)
   async me(@CurrentUser() ctx) {
     // const user = ctx.user.id;
     sout('+++++++++++++++++++++   ' + ctx['id']);
-    return this.usersService.findOne(ctx['id']);
+
+    return ctx;
   }
 }

@@ -5,19 +5,26 @@ import { BookModule } from './book/book.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { join } from 'path';
 import { FightStaffModule } from './fight_staff/fight_staff.module';
 import { AuthModule } from './auth/auth.module';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { GraphqlResponseInspector } from './users/inspectors/users.response.inspector';
-import { RolesGuard } from 'users/users.guards/role.guard';
-import { PermissionsModule } from './permissions/permissions.module';
 import { AirLinesModule } from 'air_line/air_line.module';
-import { EmployeesModule } from 'employee/employee.module';
+import { EmployeeModule } from 'employee/employee.module';
 import { RoleModule } from './role/role.module';
 import { ConfigModule } from '@nestlib/config';
-import { AuthGuard } from 'auth/guard/auth.guard';
+import { CreateSuperAdminSeeder } from './super.admin.seeder';
+import { User } from './users/entities/user.entity';
+import { Role } from './role/entities/role.entity';
+import { createGraphQLContextCarringUserData } from './common/graphql-context';
+import { UsersServices } from './users/users.service';
+import { PermissionsGuard } from 'permissions/guard/permissions.guard';
+import { NotifcationModule } from './notifcation/notifcation.module';
+import { FirebaseModule } from './firebase/firebase.module';
+import { FcmModule } from './fcm/fcm.module';
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
@@ -29,29 +36,40 @@ import { AuthGuard } from 'auth/guard/auth.guard';
       database: process.env.DB_NAME,
       port: Number(process.env.DB_PORT),
       autoLoadEntities: true,
-      //drop schema for db mmodifications
+      // /drop schema for db mmodifications
       // dropSchema: true,
+      applicationName: 'air-plane-api',
       synchronize: true,
       subscribers: [join(__dirname, '**', '*.subscriber.{ts,js}')],
+      cache: true,
     }),
 
-    GraphQLModule.forRoot<ApolloDriverConfig>({
+    GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
-      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
-      fieldResolverEnhancers: ['guards'],
-      sortSchema: true,
-      graphiql: true,
-      playground: true,
-      context: ({ req, res }) => ({ req, res }),
-      subscriptions: {
-        'graphql-ws': true,
-        'subscriptions-transport-ws': {
-          onConnect: (connectionParams) => {
-            console.log(connectionParams.Authorization);
-            return { Authorization: connectionParams.Authorization };
+      imports: [UsersModule],
+      useFactory: (jwtService: JwtService, usersService: UsersServices) => ({
+        autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+        fieldResolverEnhancers: ['guards'],
+        sortSchema: true,
+        graphiql: true,
+        playground: true,
+        context: ({ req, res }) =>
+          createGraphQLContextCarringUserData(
+            { req, res },
+            jwtService,
+            usersService,
+          ),
+        subscriptions: {
+          'graphql-ws': true,
+          'subscriptions-transport-ws': {
+            onConnect: (connectionParams) => {
+              console.log(connectionParams.Authorization);
+              return { Authorization: connectionParams.Authorization };
+            },
           },
         },
-      },
+      }),
+      inject: [JwtService, UsersServices],
     }),
     ConfigModule.forRoot({
       files: ['.env'],
@@ -64,24 +82,27 @@ import { AuthGuard } from 'auth/guard/auth.guard';
     FlightMangementModule,
     UsersModule,
     BookModule,
-    EmployeesModule,
+    EmployeeModule,
     AirLinesModule,
     FightStaffModule,
     AuthModule,
-    PermissionsModule,
     RoleModule,
+    TypeOrmModule.forFeature([User, Role]),
+    NotifcationModule,
+    FirebaseModule,
+    FcmModule,
+    EmailModule,
   ],
   providers: [
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: GraphqlResponseInspector,
-    },
+    // {
+    //   provide: APP_INTERCEPTOR,
+    //   useClass: GraphqlResponseInspector,
+    // },
     {
       provide: APP_GUARD,
-      useClass: RolesGuard,
+      useClass: PermissionsGuard,
     },
+    CreateSuperAdminSeeder,
   ],
 })
-export class AppModule {
-  constructor() {}
-}
+export class AppModule {}

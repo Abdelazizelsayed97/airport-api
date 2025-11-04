@@ -3,6 +3,10 @@ import { AuthService } from './auth.service';
 import { User } from '../users/entities/user.entity';
 import { RegisterInput } from './dto/sign-up.input';
 import { SignInDto } from './dto/sign-in.input';
+import { UsersRoles } from '@core/enums/user.roles';
+import { UseGuards } from '@nestjs/common';
+import { RolesGuard } from 'users/users.guards/role.guard';
+import { Roles } from './decorators/auth.decorator';
 
 @Resolver(() => User)
 export class AuthResolver {
@@ -12,8 +16,8 @@ export class AuthResolver {
   signIn(@Args('loginInput') createAuthInput: SignInDto) {
     return this.authService.signIn(createAuthInput);
   }
-  // @Roles(UsersRoles.user)
-  // @UseGuards(RolesGuard)
+  @Roles(UsersRoles.user)
+  @UseGuards(RolesGuard)
   @Mutation(() => User, { name: 'register' })
   signUp(@Args('registerInput') registerInput: RegisterInput) {
     return this.authService.sighUp(registerInput);

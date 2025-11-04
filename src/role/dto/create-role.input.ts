@@ -1,7 +1,6 @@
 import { InputType, Field } from '@nestjs/graphql';
 import { IsNotEmpty, IsString } from 'class-validator';
-import { CreatePermissionInput } from 'permissions/dto/create-permission.input';
-import { Permission } from 'permissions/entities/permission.entity';
+import { action } from '@core/enums/permissions.action';
 
 @InputType()
 export class CreateRoleInput {
@@ -9,7 +8,6 @@ export class CreateRoleInput {
   @IsNotEmpty()
   @Field(() => String)
   name: string;
-
-  @Field(() => [CreatePermissionInput])
-  permissions: CreatePermissionInput[];
+  @Field(() => [action])
+  permissions: action[];
 }

@@ -6,9 +6,7 @@ import {
 } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { JwtService } from '@nestjs/jwt';
-
 import { Request } from 'express';
-import { jwtDecode } from 'jwt-decode';
 import { sout } from 'users/users.service';
 
 @Injectable()
@@ -19,6 +17,7 @@ export class AuthGuard implements CanActivate {
     const gqlCtx = GqlExecutionContext.create(context);
     const request = gqlCtx.getContext().req;
     sout(request.headers.authorization);
+    sout('================AuthGuard================' + request.user);
 
     if (request.headers.authorization === undefined) {
       return false;
@@ -30,17 +29,17 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException();
     }
     sout(`this is secret ${process.env.JWT_SECRET}`);
-    // try {
+    try {
+      await this.jwtService.verifyAsync(token, {
+        secret: process.env.JWT_SECRET,
+      });
 
-    // } catch {
-    //   throw new UnauthorizedException();
-    // }
-    const payload = await this.jwtService.verifyAsync(token, {
-      secret: process.env.JWT_SECRET,
-    });
+      // request.user = payload;
 
-    request.user = payload;
-    return true;
+      return true;
+    } catch {
+      throw new UnauthorizedException('something went wrong with token');
+    }
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {

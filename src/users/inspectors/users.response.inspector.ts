@@ -6,13 +6,15 @@ import {
 } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { Observable, tap } from 'rxjs';
+import { sout } from 'users/users.service';
 
 @Injectable()
 export class GraphqlResponseInspector implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const gqlCtx = GqlExecutionContext.create(context);
     const ctx = gqlCtx.getContext();
-    const user = ctx.req?.user;
+    const user = ctx.user;
+    sout(`this is user from gr inspector ${ctx.headers}`);
 
     const operationName = gqlCtx.getInfo().fieldName;
     const variables = gqlCtx.getArgs();

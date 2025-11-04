@@ -9,7 +9,6 @@ export enum UsersRoles {
   user = 'user',
 }
 
-// implement functionality of insert new role to enum
 registerEnumType(UsersRoles, {
   name: 'UsersRoles',
 });

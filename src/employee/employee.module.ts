@@ -10,4 +10,4 @@ import { UsersModule } from 'users/users.module';
   providers: [EmployeesResolver, EmployeesService],
   imports: [TypeOrmModule.forFeature([Employee]), UsersModule],
 })
-export class EmployeesModule {}
+export class EmployeeModule {}

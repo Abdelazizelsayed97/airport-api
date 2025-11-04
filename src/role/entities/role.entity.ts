@@ -1,22 +1,27 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { Permission } from 'permissions/entities/permission.entity';
-import {
-  Column,
-  PrimaryGeneratedColumn,
-  Entity,
-  ManyToMany,
-  JoinTable,
-} from 'typeorm';
-@Entity()
+import { action } from '@core/enums/permissions.action';
+import { Column, PrimaryGeneratedColumn, Entity, OneToMany } from 'typeorm';
+import { User } from 'users/entities/user.entity';
+@Entity({ synchronize: true })
 @ObjectType()
 export class Role {
   @Field(() => String)
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
   @Field(() => String)
-  @Column({ unique: true })
+  @Column('text', { unique: true })
   name: string;
-  @Field(() => [Permission], { nullable: true })
-  @ManyToMany(() => Permission, (permission) => permission.roles)
-  permissions: Permission[];
+
+  @Field(() => [action])
+  @Column('enum', {
+    array: true,
+    default: [],
+    enum: action,
+    enumName: 'action',
+  })
+  permissions: action[];
+
+  @OneToMany(() => User, (user) => user.role)
+  users: User[];
 }

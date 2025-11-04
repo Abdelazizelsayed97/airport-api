@@ -1,6 +1,6 @@
 import { InputType, Field } from '@nestjs/graphql';
 import { IsAlpha, IsNotEmpty, IsString } from 'class-validator';
-import { staff_Roles } from 'enums/crew.roles';
+import { staff_Roles } from '@core/enums/crew.roles';
 
 @InputType()
 export class CreateFightStaffInput {

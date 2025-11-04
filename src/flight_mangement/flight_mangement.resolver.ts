@@ -8,7 +8,7 @@ import FlightEntity from './entities/flight.entity';
 import { Roles } from 'auth/decorators/auth.decorator';
 import { CurrentUser } from 'auth/decorators/current-user.decorator';
 import { AuthGuard } from 'auth/guard/auth.guard';
-import { UsersRoles } from 'enums/user.roles';
+import { UsersRoles } from '@core/enums/user.roles';
 import PaginationInput from 'pagination/pagination.dto';
 import { User } from 'users/entities/user.entity';
 import { RolesGuard } from 'users/users.guards/role.guard';

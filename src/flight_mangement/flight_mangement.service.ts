@@ -8,6 +8,8 @@ import FlightEntity from './entities/flight.entity';
 import { pubSub } from './subscriptions/flight.subscription.resolver';
 import PaginationInput from '../pagination/pagination.dto';
 import { sout } from 'users/users.service';
+import { FlightSubscriptionServices } from './subscriptions/flight.subscription.services';
+import { NotifcationService } from 'notifcation/notifcation.service';
 
 @Injectable()
 export class FlightMangementService {
@@ -74,6 +76,7 @@ export class FlightMangementService {
     if (!flight) {
       throw new Error("This flight doesn't exist or departed");
     }
+
     Object.assign(flight, updateFlightMangementInput);
 
     await this.flightManageRepo.save(flight);

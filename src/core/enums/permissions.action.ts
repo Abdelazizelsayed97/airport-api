@@ -21,6 +21,15 @@ export enum action {
   create = 'create',
   update = 'update',
   delete = 'delete',
+  //////
+
+
+  can_assigned_to_flight = 'can_assigned_to_flight',
+
+
+  super_admin = 'super_admin',
+
+  
 }
 
 registerEnumType(action, {

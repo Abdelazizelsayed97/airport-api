@@ -32,6 +32,13 @@ input CreateBookInput {
   userId: String!
 }
 
+input CreateFcmInput {
+  deviceInfo: String
+  isActive: Boolean!
+  token: String!
+  user_id: String!
+}
+
 input CreateFightStaffInput {
   employeeID: String!
   fight_id: String!
@@ -51,6 +58,24 @@ input CreateFlightMangementInput {
   flight_status: flight_status
 }
 
+input CreateNotifcationInput {
+  body: String!
+  image: String!
+  title: String!
+  type: String!
+  user_id: String!
+}
+
+input CreateRoleInput {
+  name: String!
+  permissions: [PermissionsAction!]!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
 type Employee {
   assigned_flights: [FlightStaff!]!
   email: String!
@@ -60,6 +85,13 @@ type Employee {
   name: String!
   role: staff_Roles!
   users: User!
+}
+
+type Fcm {
+  deviceInfo: String
+  id: String!
+  isActive: Boolean!
+  token: String!
 }
 
 type FlightEntity {
@@ -96,20 +128,36 @@ type Mutation {
   createBook(createBookInput: CreateBookInput!): Book!
   createFightStaff(createFightStaffInput: CreateFightStaffInput!): FlightStaff!
   createFlight(createFlightMangementInput: CreateFlightMangementInput!): FlightEntity!
+  createNotifcation(createNotifcationInput: CreateNotifcationInput!): Notifcation!
+  createRole(createRoleInput: CreateRoleInput!): Role!
   deleteUser(id: String!): User!
   login(loginInput: SignInDto!): User!
   register(registerInput: RegisterInput!): User!
+  registerFcmToken(input: CreateFcmInput!): Fcm!
   removeAirLine(id: String!): AirLine!
   removeBook(id: String!): Book!
   removeEmployee(id: String!): Employee!
+  removeFcmToken(token: String!): Boolean!
   removeFightStaff(id: Int!): FlightStaff!
   removeFlightMangement(id: String!): FlightEntity!
+  removeNotifcation(id: String!): Notifcation!
   updateAirLine(updateAirLineInput: UpdateAirLineInput!): AirLine!
   updateBook(updateBookInput: UpdateBookInput!): Book!
   updateEmployee(updateEmployeeInput: UpdateEmployeeInput!): Employee!
   updateFightStaff(updateFightStaffInput: UpdateFightStaffInput!): FlightStaff!
   updateFlightMangement(updateFlightMangementInput: UpdateFlightMangementInput!): FlightEntity!
+  updateNotifcation(updateNotifcationInput: UpdateNotifcationInput!): Notifcation!
   updateUser(updateUserInput: UpdateUserInput!): User!
+}
+
+type Notifcation {
+  body: String!
+  createdAt: DateTime!
+  id: String!
+  isRead: Boolean!
+  reciver: User!
+  title: String!
+  type: String!
 }
 
 input PaginationInput {
@@ -117,11 +165,26 @@ input PaginationInput {
   page: Int = 1
 }
 
-type Permission {
-  description: String!
-  id: String!
-  permission: String!
-  roles: [Role!]!
+"""The action of the permission"""
+enum PermissionsAction {
+  can_assigned_to_flight
+  create
+  create_flight
+  create_staff
+  create_user
+  delete
+  delete_flight
+  delete_staff
+  delete_user
+  super_admin
+  update
+  update_flight
+  update_staff
+  update_user
+  view
+  view_flight
+  view_staff
+  view_user
 }
 
 type Query {
@@ -130,16 +193,21 @@ type Query {
   book(id: String!): Book!
   employee(id: String!): Employee!
   employees: [Employee!]!
+  fetchRoles: [Role!]!
   fightStaff(id: Int!): FlightStaff!
   flightMangementById(id: String!): FlightEntity!
   getAllFlights(filter: FlightsFilterInput, pagination: PaginationInput): [FlightEntity!]
+  getRole: Role!
   getUserById(id: String!): User!
   me: User!
+  notifcation(id: String!): Notifcation!
+  removeRole: String!
   users(paginate: PaginationInput!): [User!]!
 }
 
 input RegisterInput {
   email: String!
+  fcmToken: String!
   name: String!
   passportNumber: String!
   password: String!
@@ -149,7 +217,7 @@ input RegisterInput {
 type Role {
   id: String!
   name: String!
-  permissions: [Permission!]
+  permissions: [PermissionsAction!]!
 }
 
 input SignInDto {
@@ -204,8 +272,18 @@ input UpdateFlightMangementInput {
   id: Int!
 }
 
+input UpdateNotifcationInput {
+  body: String
+  id: String!
+  image: String
+  title: String
+  type: String
+  user_id: String
+}
+
 input UpdateUserInput {
   email: String
+  fcmToken: String
   id: String!
   name: String
   passportNumber: String
@@ -216,10 +294,11 @@ input UpdateUserInput {
 type User {
   bookingList: [Book!]
   email: String!
+  fcm: [Fcm!]
   id: String!
   name: String!
   password: String!
-  role: UsersRoles!
+  role: Role!
   token: String!
 }
 

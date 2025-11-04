@@ -6,7 +6,7 @@ import { UpdateFightStaffInput } from './dto/update-fight_staff.input';
 import { UseGuards } from '@nestjs/common';
 import { Roles } from 'auth/decorators/auth.decorator';
 import { AuthGuard } from 'auth/guard/auth.guard';
-import { UsersRoles } from 'enums/user.roles';
+import { UsersRoles } from '@core/enums/user.roles';
 import { RolesGuard } from 'users/users.guards/role.guard';
 
 // @UseGuards(AuthGuard, RolesGuard)
