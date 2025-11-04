@@ -7,7 +7,6 @@ import { Notifcation } from './entities/notifcation.entity';
 import { FcmService } from 'fcm/fcm.service';
 import * as admin from 'firebase-admin';
 import { sout, UsersServices } from 'users/users.service';
-import { User } from 'users/entities/user.entity';
 
 @Injectable()
 export class NotifcationService {
