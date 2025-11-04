@@ -155,7 +155,7 @@ type Notifcation {
   createdAt: DateTime!
   id: String!
   isRead: Boolean!
-  reciver: User!
+  reciver: User
   title: String!
   type: String!
 }
@@ -190,6 +190,7 @@ enum PermissionsAction {
 type Query {
   airLine(id: String!): AirLine!
   airLines(paginationInput: PaginationInput!): [AirLine!]!
+  allNotifcation(user_id: String!): [Notifcation!]!
   book(id: String!): Book!
   employee(id: String!): Employee!
   employees: [Employee!]!

@@ -1,11 +1,10 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args   } from '@nestjs/graphql';
 import { NotifcationService } from './notifcation.service';
 import { Notifcation } from './entities/notifcation.entity';
 import { CreateNotifcationInput } from './dto/create-notifcation.input';
 import { UpdateNotifcationInput } from './dto/update-notifcation.input';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'auth/guard/auth.guard';
-import { CurrentUser } from 'auth/decorators/current-user.decorator';
 
 @UseGuards(AuthGuard)
 @Resolver(() => Notifcation)
@@ -20,7 +19,7 @@ export class NotifcationResolver {
     return this.notifcationService.sendNotification(createNotifcationInput);
   }
 
-  @Query(() => [Notifcation], { name: 'notifcation' })
+  @Query(() => [Notifcation], { name: 'allNotifcation' })
   findAll(
     @Args('user_id', { type: () => String }) user_id: string,
   ): Promise<Notifcation[]> {

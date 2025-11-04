@@ -18,7 +18,7 @@ export class Notifcation {
   @Column()
   type: string;
 
-  @Field(() => User)
+  @Field(() => User, { nullable: true })
   @ManyToOne(() => User, (user) => user.receivedNotifications)
   reciver: User;
   @Field(() => Date)

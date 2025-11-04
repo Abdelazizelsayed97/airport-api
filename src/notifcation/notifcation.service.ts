@@ -7,10 +7,11 @@ import { Notifcation } from './entities/notifcation.entity';
 import { FcmService } from 'fcm/fcm.service';
 import * as admin from 'firebase-admin';
 import { sout, UsersServices } from 'users/users.service';
+import { User } from 'users/entities/user.entity';
 
 @Injectable()
 export class NotifcationService {
-  private readonly logger = new Logger(NotifcationService.name);
+  // private readonly logger = new Logger(NotifcationService.name);
   constructor(
     @InjectRepository(Notifcation)
     private notifcationRepository: Repository<Notifcation>,
@@ -19,12 +20,12 @@ export class NotifcationService {
   ) {}
 
   async getAllNotificationsForUser(user_id: string): Promise<Notifcation[]> {
-    sout('user' + user_id);
+    sout('useruseruseruseruser' + user_id);
     const notifcations = await this.notifcationRepository.find({
-      // where: {
-      //   reciver: { id: user_id },
-      // },
-      // relations: ['reciver'],
+      where: {
+        reciver: { id: user_id },
+      },
+      relations: ['reciver'],
     });
     if (!notifcations) {
       throw new Error('Notifcation not found');
@@ -32,8 +33,14 @@ export class NotifcationService {
     return notifcations;
   }
 
-  findOne(id: string) {
-    return;
+  async findOne(id: string) {
+    const notification = await this.notifcationRepository.findOne({
+      where: { id: id },
+    });
+    if (!notification) {
+      throw new Error('Notifcation not found');
+    }
+    return notification;
   }
 
   async update(updateNotifcationInput: UpdateNotifcationInput) {
@@ -52,16 +59,14 @@ export class NotifcationService {
     return this.notifcationRepository.delete(id);
   }
   async sendNotification(createNotifcationInput: CreateNotifcationInput) {
-
     const recipient = await this.usersService.findOne(
       createNotifcationInput.user_id,
     );
     if (!recipient) {
       throw new Error('Recipient not found');
     }
-    const notifcation = await this.notifcationRepository.create({
+    const notifcation = this.notifcationRepository.create({
       ...createNotifcationInput,
-
       reciver: recipient,
       createdAt: new Date(),
     });
@@ -82,7 +87,7 @@ export class NotifcationService {
     await this.notifcationRepository.save(notifcation);
 
     const response = await admin.messaging().sendEachForMulticast(payload);
-    this.logger.log(`Sent to ${response.successCount} devices`);
+    // this.logger.log(`Sent to ${response.successCount} devices`);
 
     return notifcation;
   }
