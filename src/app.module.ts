@@ -94,10 +94,10 @@ import { EmailModule } from './email/email.module';
     EmailModule,
   ],
   providers: [
-    // {
-    //   provide: APP_INTERCEPTOR,
-    //   useClass: GraphqlResponseInspector,
-    // },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: GraphqlResponseInspector,
+    },
     {
       provide: APP_GUARD,
       useClass: PermissionsGuard,

@@ -1,10 +1,10 @@
 import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
-import { sout, UsersServices } from './users.service';
+import { UsersServices } from './users.service';
 import { User } from './entities/user.entity';
 import { UpdateUserInput } from '../auth/dto/update-user.input';
 import { RolesGuard } from './users.guards/role.guard';
 import { UseGuards, UseInterceptors } from '@nestjs/common';
-import { GraphqlResponseInspector } from './inspectors/users.response.inspector';
+// import { GraphqlResponseInspector } from './inspectors/users.response.inspector';
 import { AuthGuard } from 'auth/guard/auth.guard';
 import PaginationInput from 'pagination/pagination.dto';
 import { CurrentUser } from 'auth/decorators/current-user.decorator';
@@ -15,7 +15,7 @@ import { action } from '@core/enums/permissions.action';
 // @Roles(UsersRoles.super_admin, UsersRoles.admin, UsersRoles.staff)
 @PermissionsD(action.create, action.create_user)
 @UseGuards(AuthGuard, RolesGuard, PermissionsGuard)
-@UseInterceptors(GraphqlResponseInspector)
+// @UseInterceptors(GraphqlResponseInspector)
 @Resolver(() => User)
 export class UsersResolver {
   constructor(private readonly usersService: UsersServices) {}
@@ -27,8 +27,8 @@ export class UsersResolver {
   ): Promise<User[]> {
     return this.usersService.getAllUsers(pagination);
   }
-  @PermissionsD(action.create)
-  @UseGuards(AuthGuard, PermissionsGuard)
+  @PermissionsD(action.super_admin)
+  @UseGuards(PermissionsGuard)
   @Query(() => User, { name: 'getUserById' })
   async getUserById(
     @Args('id', { type: () => String }) id: string,
@@ -48,10 +48,7 @@ export class UsersResolver {
   }
 
   @Query(() => User)
-  async me(@CurrentUser() ctx) {
-    // const user = ctx.user.id;
-    sout('+++++++++++++++++++++   ' + ctx['id']);
-
-    return ctx;
+  async me(@CurrentUser() user: User) {
+    return user;
   }
 }

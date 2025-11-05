@@ -4,23 +4,19 @@ import { UpdateRoleInput } from './dto/update-role.input';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Role } from './entities/role.entity';
-import { sout } from 'users/users.service';
 import { PermissionsD } from 'permissions/decorators/permissions.decorator';
-import { UsersRoles } from '@core/enums/user.roles';
 import { AuthGuard } from 'auth/guard/auth.guard';
 import { PermissionsGuard } from 'permissions/guard/permissions.guard';
 import { action } from '@core/enums/permissions.action';
-import { Roles } from 'auth/decorators/auth.decorator';
-import { RolesGuard } from 'users/users.guards/role.guard';
+
 
 @Injectable()
 export class RoleService {
   constructor(
     @InjectRepository(Role) private roleRepository: Repository<Role>,
   ) {}
-  @PermissionsD(action.create)
-  @Roles(UsersRoles.super_admin)
-  @UseGuards(AuthGuard, RolesGuard, PermissionsGuard)
+  @PermissionsD(action.super_admin)
+  @UseGuards(AuthGuard, PermissionsGuard)
   async create(createRoleInput: CreateRoleInput) {
     let role = await this.roleRepository.findOneBy({
       name: createRoleInput.name,
@@ -28,7 +24,7 @@ export class RoleService {
     if (role) {
       throw new Error('Role already exist');
     }
-    sout(createRoleInput);
+    console.log(createRoleInput);
     role = this.roleRepository.create({
       name: createRoleInput.name,
       permissions: createRoleInput.permissions,
@@ -40,7 +36,7 @@ export class RoleService {
     return this.roleRepository.find();
   }
   async findByName(name: string) {
-    sout(name);
+    console.log(name);
     if (name === null) {
       throw new Error("Name can't be null");
     }

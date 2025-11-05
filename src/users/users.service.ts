@@ -31,21 +31,17 @@ export class UsersServices {
       // loadRelationIds: true,
     });
 
-    sout('hhhhhhhhhhhhh ' + isUserExist);
     if (isUserExist) {
       throw new Error('User already exists with this email');
     }
     const hashedPassword = hashSync(input.password, 10);
     input.password = hashedPassword;
-    sout('createUser');
     const user = this.userRepository.create({
       ...input,
       role: await this.roleService.findOne(input.role),
     });
-    sout(user);
 
     user.token = await this.generateToken(user.id);
-    sout(user);
     await this.firebaseServices.sendNotification(user);
     await this.userRepository.save(user);
     return user;
@@ -54,7 +50,6 @@ export class UsersServices {
     const user = await this.userRepository.findOne({
       where: { email: input.email },
     });
-    sout(user);
     if (!user) {
       throw new Error("This user doesn't exist");
     }
@@ -82,17 +77,16 @@ export class UsersServices {
   async getAllUsers(pagination: PaginationInput): Promise<User[]> {
     return this.userRepository.find({
       take: pagination.limit,
-      skip: (pagination.page || 0 - 1) * pagination.limit,
+      // skip: (pagination.page || 0) * pagination.limit,
     });
   }
   // @UseInterceptors(GraphqlResponseInspector)
   @PermissionsD(action.view_user)
   @UseGuards(PermissionsGuard)
   async findOne(id: string): Promise<User> {
-    sout('findOne');
     const user = await this.userRepository.findOne({
       where: { id: id },
-      relations: ['bookingList'],
+      relations: ['bookingList', 'role'],
       cache: true,
     });
 

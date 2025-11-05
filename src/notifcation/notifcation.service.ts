@@ -6,11 +6,11 @@ import { Repository } from 'typeorm';
 import { Notifcation } from './entities/notifcation.entity';
 import { FcmService } from 'fcm/fcm.service';
 import * as admin from 'firebase-admin';
-import { sout, UsersServices } from 'users/users.service';
+import {  UsersServices } from 'users/users.service';
 
 @Injectable()
 export class NotifcationService {
-  // private readonly logger = new Logger(NotifcationService.name);
+  private readonly logger = new Logger(NotifcationService.name);
   constructor(
     @InjectRepository(Notifcation)
     private notifcationRepository: Repository<Notifcation>,
@@ -19,7 +19,7 @@ export class NotifcationService {
   ) {}
 
   async getAllNotificationsForUser(user_id: string): Promise<Notifcation[]> {
-    sout('useruseruseruseruser' + user_id);
+    console.log('useruseruseruseruser' + user_id);
     const notifcations = await this.notifcationRepository.find({
       where: {
         reciver: { id: user_id },
@@ -86,7 +86,9 @@ export class NotifcationService {
     await this.notifcationRepository.save(notifcation);
 
     const response = await admin.messaging().sendEachForMulticast(payload);
-
+    this.logger.log(
+      `FCM notification sent to ${tokens.length} tokens for user ${createNotifcationInput.user_id} -- ${response}`,
+    );
 
     return notifcation;
   }

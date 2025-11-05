@@ -2,7 +2,6 @@ import { InputType, Field, ObjectType } from '@nestjs/graphql';
 import { UsersRoles } from '@core/enums/user.roles';
 
 @InputType()
-@ObjectType()
 export class RegisterInput {
   @Field(() => String)
   passportNumber: string;
@@ -14,6 +13,7 @@ export class RegisterInput {
   name: string;
   @Field(() => UsersRoles)
   role: UsersRoles;
+
   @Field(() => String)
   fcmToken: string;
 }

@@ -24,4 +24,8 @@ import { QueueService } from './queue.service';
   providers: [QueueService],
   exports: [BullModule, QueueService],
 })
-export class QueueModule {}
+export class QueueModule {
+  constructor() {
+    console.log('QueueModule');
+  }
+}

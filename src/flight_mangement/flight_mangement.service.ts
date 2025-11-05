@@ -2,14 +2,12 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateFlightMangementInput } from './dto/create-flight_mangement.input';
 import { UpdateFlightMangementInput } from './dto/update-flight_mangement.input';
 import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
 import { FlightsFilterInput } from './dto/flight.filter.dto';
 import FlightEntity from './entities/flight.entity';
 import { pubSub } from './subscriptions/flight.subscription.resolver';
 import PaginationInput from '../pagination/pagination.dto';
-import { sout } from 'users/users.service';
-import { FlightSubscriptionServices } from './subscriptions/flight.subscription.services';
-import { NotifcationService } from 'notifcation/notifcation.service';
+
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class FlightMangementService {
@@ -26,7 +24,7 @@ export class FlightMangementService {
 
       loadRelationIds: true,
     });
-    sout('ttttttttt --- ttttttt' + existing?.airline);
+    console.log('ttttttttt --- ttttttt' + existing?.airline);
     if (existing) {
       throw new Error('There is an existing flight');
     }

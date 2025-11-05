@@ -19,7 +19,7 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Field(() => String)
+@Field(() => String)
   @Column({ unique: true })
   email: string;
 

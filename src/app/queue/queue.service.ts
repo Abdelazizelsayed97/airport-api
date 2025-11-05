@@ -4,7 +4,7 @@ import { Queue } from 'bullmq';
 
 @Injectable()
 export class QueueService {
-  constructor(@InjectQueue('email-queue') private emailQueue: Queue) {}
+  constructor(@InjectQueue('email') private emailQueue: Queue) {}
 
   async addVerificationEmailJob(data: any) {
     await this.emailQueue.add('send-verification', data, {

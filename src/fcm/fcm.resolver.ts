@@ -6,6 +6,7 @@ import { AuthGuard } from 'auth/guard/auth.guard';
 import { FcmService } from './fcm.service';
 import { CreateFcmInput } from './dto/create-fcm.input';
 import { CurrentUser } from 'auth/decorators/current-user.decorator';
+import { User } from 'users/entities/user.entity';
 
 @Resolver(() => Fcm)
 export class FcmResolver {
@@ -14,10 +15,9 @@ export class FcmResolver {
   @UseGuards(AuthGuard)
   @Mutation(() => Fcm)
   async registerFcmToken(
-    @CurrentUser() ctx,
+    @CurrentUser() user: User,
     @Args('input') input: CreateFcmInput,
   ): Promise<Fcm> {
-    const user = ctx;
     return this.fcmServices.registerToken(user, input);
   }
 

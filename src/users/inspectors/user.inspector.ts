@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { Observable } from 'rxjs';
-import { sout } from '../users.service';
+
 
 @Injectable()
 export class BookingInspector implements NestInterceptor {

@@ -12,7 +12,7 @@ import { UsersRoles } from '@core/enums/user.roles';
 import PaginationInput from 'pagination/pagination.dto';
 import { User } from 'users/entities/user.entity';
 import { RolesGuard } from 'users/users.guards/role.guard';
-import { sout } from 'users/users.service';
+
 import { PermissionsD } from 'permissions/decorators/permissions.decorator';
 
 // @UseGuards(AuthGuard, RolesGuard)
@@ -30,7 +30,6 @@ export class FlightMangementResolver {
     createFlightMangementInput: CreateFlightMangementInput,
     @CurrentUser() user: User,
   ) {
-    sout(user);
     return this.flightMangementService.create(createFlightMangementInput);
   }
 
@@ -45,7 +44,6 @@ export class FlightMangementResolver {
     @Args('filter', { type: () => FlightsFilterInput, nullable: true })
     filter: FlightsFilterInput,
   ): Promise<FlightEntity[]> {
-    sout('-----------------');
     return this.flightMangementService.findAll(pagination, filter);
   }
 

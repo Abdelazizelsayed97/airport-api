@@ -2,21 +2,20 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { permission_key } from 'permissions/decorators/permissions.decorator';
-import { Observable } from 'rxjs';
 import { User } from 'users/entities/user.entity';
-import { sout } from 'users/users.service';
 
 @Injectable()
 export class PermissionsGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
   canActivate(
     context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  ): boolean | Promise<boolean> {
     const gqlCtx = GqlExecutionContext.create(context);
     const ctx = gqlCtx.getContext();
     const user: User = ctx.user;
+    const request = gqlCtx.getContext().req;
+    console.log('this is permissions guard '+user);
 
-    sout('this is the request from permissions guard' + JSON.stringify(user));
     const requiredPermissions = this.reflector.getAllAndOverride<string[]>(
       permission_key,
       [context.getHandler(), context.getClass()],
@@ -25,7 +24,6 @@ export class PermissionsGuard implements CanActivate {
     if (!requiredPermissions) {
       return true;
     }
-    sout('kokokookookoo' + requiredPermissions);
     if (!user || !user.role) {
       return false;
     }
