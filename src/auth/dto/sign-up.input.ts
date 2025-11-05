@@ -1,6 +1,5 @@
 import { InputType, Field, ObjectType } from '@nestjs/graphql';
 import { UsersRoles } from '@core/enums/user.roles';
-import { Role } from 'role/entities/role.entity';
 
 @InputType()
 @ObjectType()

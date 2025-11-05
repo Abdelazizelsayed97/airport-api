@@ -86,7 +86,7 @@ export class NotifcationService {
     await this.notifcationRepository.save(notifcation);
 
     const response = await admin.messaging().sendEachForMulticast(payload);
-    // this.logger.log(`Sent to ${response.successCount} devices`);
+
 
     return notifcation;
   }

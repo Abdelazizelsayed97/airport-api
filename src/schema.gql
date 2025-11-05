@@ -223,6 +223,7 @@ type Role {
 
 input SignInDto {
   email: String!
+  fcmToken: String!
   password: String!
 }
 

@@ -7,4 +7,6 @@ export class SignInDto {
   email: string;
   @Field(() => String)
   password: string;
+  @Field(()=>String)
+  fcmToken:string
 }
