@@ -7,6 +7,8 @@ import { UsersRoles } from '@core/enums/user.roles';
 import { UseGuards } from '@nestjs/common';
 import { RolesGuard } from 'users/users.guards/role.guard';
 import { Roles } from './decorators/auth.decorator';
+import { PermissionsD } from 'permissions/decorators/permissions.decorator';
+import { action } from '@core/enums/permissions.action';
 
 @Resolver(() => User)
 export class AuthResolver {
@@ -16,8 +18,8 @@ export class AuthResolver {
   signIn(@Args('loginInput') createAuthInput: SignInDto) {
     return this.authService.signIn(createAuthInput);
   }
-  @Roles(UsersRoles.user)
-  @UseGuards(RolesGuard)
+
+  @PermissionsD(UsersRoles.admin, action.create)
   @Mutation(() => User, { name: 'register' })
   signUp(@Args('registerInput') registerInput: RegisterInput) {
     return this.authService.sighUp(registerInput);

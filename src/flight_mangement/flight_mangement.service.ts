@@ -8,12 +8,14 @@ import { pubSub } from './subscriptions/flight.subscription.resolver';
 import PaginationInput from '../pagination/pagination.dto';
 
 import { InjectRepository } from '@nestjs/typeorm';
+import { sout } from 'users/users.service';
 
 @Injectable()
 export class FlightMangementService {
   constructor(
     @InjectRepository(FlightEntity)
     private flightManageRepo: Repository<FlightEntity>,
+    
   ) {}
   async create(input: CreateFlightMangementInput): Promise<FlightEntity> {
     if (!input) {
@@ -32,6 +34,7 @@ export class FlightMangementService {
       ...input,
     });
     await this.flightManageRepo.save(newFlight);
+    pubSub.publish('commentAdded', { flight: newFlight });
     return newFlight;
   }
 
@@ -40,8 +43,8 @@ export class FlightMangementService {
     filter: FlightsFilterInput,
   ): Promise<FlightEntity[]> {
     const flight = await this.flightManageRepo.findAndCount({
-      skip: ((pagination.page || 1) - 1) * pagination.limit,
-      take: pagination.limit,
+      // skip: ((pagination.page || 1) - 1) * pagination.limit,
+      // take: pagination.limit,
 
       relations: ['assigned'],
     });
@@ -63,22 +66,22 @@ export class FlightMangementService {
     return flight;
   }
 
-  async update(
-    id: string,
-    updateFlightMangementInput: UpdateFlightMangementInput,
-  ): Promise<FlightEntity> {
-    if (!id) {
+  async update(input: UpdateFlightMangementInput): Promise<FlightEntity> {
+    if (!input.id) {
       throw new Error("Id can't be null");
     }
-    const flight = await this.findOne(id);
+    const flight = await this.findOne(input.id);
     if (!flight) {
       throw new Error("This flight doesn't exist or departed");
     }
 
-    Object.assign(flight, updateFlightMangementInput);
+    Object.assign(flight, input);
 
     await this.flightManageRepo.save(flight);
-    pubSub.publish('flightStatus', { flight: flight });
+    sout('Publishing flight update for flight id: ' + flight.flight_status);
+    await pubSub.publish('flightStatus', {
+      flightStatus: flight,
+    });
     return flight;
   }
 

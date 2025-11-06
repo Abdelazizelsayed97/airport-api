@@ -28,7 +28,7 @@ export class FightStaffResolver {
   }
 
   @Query(() => FlightStaff, { name: 'fightStaff' })
-  findOne(@Args('id', { type: () => Int }) id: number) {
+  findOne(@Args('id', { type: () => String }) id: string) {
     return this.fightStaffService.findOne(id);
   }
 

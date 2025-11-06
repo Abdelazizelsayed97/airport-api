@@ -1,27 +1,36 @@
 import { JwtService } from '@nestjs/jwt';
-import { UsersServices } from 'users/users.service';
-import { User } from 'users/entities/user.entity';
+import { sout, UsersServices } from 'users/users.service';
+import { Injectable, NestMiddleware } from '@nestjs/common';
 
-export async function createGraphQLContextCarringUserData(
-  { req, res },
-  jwtService: JwtService,
-  usersService: UsersServices,
-): Promise<{ req: any; res: any; user: User | null }> {
-  let user: User | null = null;
-  try {
-    const authHeader = req.headers.authorization;
-    if (authHeader) {
-      const [type, token] = authHeader.split(' ');
-      if (type === 'Bearer' && token) {
-        const payload = jwtService.verify(token);
-        if (payload?.id) {
-          user = await usersService.findOne(payload.id);
+@Injectable()
+export class UserInspectorMiddleware implements NestMiddleware {
+  constructor(
+    private readonly authService: JwtService,
+    private readonly usersService: UsersServices,
+  ) {}
+
+  async use(req: any, res: any, next: () => void) {
+    sout(
+      'UserInspectorMiddleware headers: ' + JSON.stringify(req?.headers ?? {}),
+    );
+
+    const token = req.headers.authorization?.split(' ')[1];
+    console.log('UserInspectorMiddleware token: ' + String(token ?? 'none'));
+
+    if (token) {
+      try {
+        const payload: any = await this.authService.verifyAsync(token);
+        const user = await this.usersService.findOne(payload.sub ?? payload.id);
+        if (user) {
+          req.user = user;
         }
+      } catch (e) {
+        console.warn(
+          'UserInspectorMiddleware: Failed to attach user:',
+          e?.message ?? e,
+        );
       }
     }
-  } catch (err) {
-    console.warn('GraphQL context user fetch error:', err.message);
+    next();
   }
-
-  return { req, res, user };
 }

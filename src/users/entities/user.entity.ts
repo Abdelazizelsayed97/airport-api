@@ -52,4 +52,6 @@ export class User {
 
   @OneToMany(() => Notifcation, (notification) => notification.reciver)
   receivedNotifications: Notifcation[];
+  @Column({ default: false })
+  verificationCode : string;
 }

@@ -9,14 +9,12 @@ import { AuthGuard } from 'auth/guard/auth.guard';
 import { PermissionsGuard } from 'permissions/guard/permissions.guard';
 import { action } from '@core/enums/permissions.action';
 
-
 @Injectable()
 export class RoleService {
   constructor(
     @InjectRepository(Role) private roleRepository: Repository<Role>,
   ) {}
-  @PermissionsD(action.super_admin)
-  @UseGuards(AuthGuard, PermissionsGuard)
+
   async create(createRoleInput: CreateRoleInput) {
     let role = await this.roleRepository.findOneBy({
       name: createRoleInput.name,

@@ -1,14 +1,13 @@
 import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 
-import { EmailService } from 'email/email.service';
-import * as sgMail from '@sendgrid/mail';
+import { SendGridService } from 'email/sendgrid.services';
 import * as fs from 'fs';
 import * as path from 'path';
 
 @Processor('email')
 export class EmailWorker extends WorkerHost {
-  constructor(private readonly emailService: EmailService) {
+  constructor(private readonly sendGridService: SendGridService) {
     super();
   }
 
@@ -17,8 +16,8 @@ export class EmailWorker extends WorkerHost {
     if (name === 'send-verification') {
       const templatePath = path.join(
         __dirname,
-        '../../../email/templates',
-        'notification.temp.html',
+        '../../../core/templates',
+        'verification.temp.html',
       );
       let html = fs.readFileSync(templatePath, 'utf8');
 
@@ -32,7 +31,7 @@ export class EmailWorker extends WorkerHost {
         .replace('{{year}}', new Date().getFullYear().toString())
         .replace('{{appName}}', 'YourApp');
 
-      await sgMail.send({
+      await this.sendGridService.send({
         to: data.user.email,
         from: process.env.SENDGRID_SENDER_EMAIL!,
         subject: 'Verify your email address',
@@ -41,7 +40,7 @@ export class EmailWorker extends WorkerHost {
     } else if (name === 'status-notification') {
       const templatePath = path.join(
         __dirname,
-        '../../../email/templates',
+        '../../../core/templates',
         'notification.temp.html',
       );
       let html = fs.readFileSync(templatePath, 'utf8');
@@ -55,7 +54,7 @@ export class EmailWorker extends WorkerHost {
         .replace('{{year}}', new Date().getFullYear().toString())
         .replace('{{appName}}', 'YourApp');
 
-      await sgMail.send({
+      await this.sendGridService.send({
         to: data.user.email,
         from: process.env.SENDGRID_SENDER_EMAIL!,
         subject: `${data.entityName} Status Updated`,

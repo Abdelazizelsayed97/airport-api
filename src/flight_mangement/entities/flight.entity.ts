@@ -50,9 +50,9 @@ export default class FlightEntity {
   @Column({ nullable: true })
   takenSeats?: number;
 
-  @Field(() => flight_status)
+  @Field(() => flight_status, { nullable: true })
   @Column({ enum: flight_status, type: 'enum' })
-  flight_status: flight_status;
+  flight_status?: flight_status;
 
   @Field(() => FlightStaff, { nullable: true })
   @OneToOne(() => FlightStaff, (flightStaff) => flightStaff.flight, {

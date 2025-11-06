@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { FlightMangementModule } from './flight_mangement/flight_mangement.module';
 import { UsersModule } from './users/users.module';
 import { BookModule } from './book/book.module';
@@ -18,13 +18,16 @@ import { ConfigModule } from '@nestlib/config';
 import { CreateSuperAdminSeeder } from './super.admin.seeder';
 import { User } from './users/entities/user.entity';
 import { Role } from './role/entities/role.entity';
-import { createGraphQLContextCarringUserData } from './common/graphql-context';
+
 import { UsersServices } from './users/users.service';
 import { PermissionsGuard } from 'permissions/guard/permissions.guard';
 import { NotifcationModule } from './notifcation/notifcation.module';
-import { FirebaseModule } from './firebase/firebase.module';
+
 import { FcmModule } from './fcm/fcm.module';
 import { EmailModule } from './email/email.module';
+import { QueueModule } from '@app/queue/queue.module';
+import { AuthGuard } from 'auth/guard/auth.guard';
+import { UserInspectorMiddleware } from 'common/graphql-context';
 
 @Module({
   imports: [
@@ -51,14 +54,11 @@ import { EmailModule } from './email/email.module';
         autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
         fieldResolverEnhancers: ['guards'],
         sortSchema: true,
-        graphiql: true,
+        // graphiql: true,
         playground: true,
-        context: ({ req, res }) =>
-          createGraphQLContextCarringUserData(
-            { req, res },
-            jwtService,
-            usersService,
-          ),
+        installSubscriptionHandlers: true,
+        // context: ({ req, res }) =>
+        //   createGraphQLContextInspector({ req, res }, jwtService, usersService),
         subscriptions: {
           'graphql-ws': true,
           'subscriptions-transport-ws': {
@@ -89,20 +89,26 @@ import { EmailModule } from './email/email.module';
     RoleModule,
     TypeOrmModule.forFeature([User, Role]),
     NotifcationModule,
-    FirebaseModule,
+
     FcmModule,
     EmailModule,
+    QueueModule,
   ],
   providers: [
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: GraphqlResponseInspector,
-    },
-    {
-      provide: APP_GUARD,
-      useClass: PermissionsGuard,
-    },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: AuthGuard,
+    // },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: PermissionsGuard,
+    // },
+
     CreateSuperAdminSeeder,
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(UserInspectorMiddleware).forRoutes('*');
+  }
+}

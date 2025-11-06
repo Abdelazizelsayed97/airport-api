@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { CreateFcmInput } from './dto/create-fcm.input';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -10,7 +10,8 @@ import { User } from 'users/entities/user.entity';
 export class FcmService {
   constructor(
     @InjectRepository(Fcm) private fcmRepository: Repository<Fcm>,
-    readonly usersService: UsersServices,
+    @Inject(forwardRef(() => UsersServices))
+    private usersService: UsersServices,
   ) {}
   async create(createFcmInput: CreateFcmInput) {
     const isExist = await this.fcmRepository.findOne({

@@ -16,25 +16,23 @@ export class AuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const gqlCtx = GqlExecutionContext.create(context);
     const request = gqlCtx.getContext().req;
-    sout(request.headers.authorization);
-    sout('================AuthGuard================' + request.user);
+
+    sout('================AuthGuard================');
 
     if (request.headers.authorization === undefined) {
       return false;
     }
 
     const token = this.extractTokenFromHeader(request);
-    sout(token);
+
     if (!token) {
       throw new UnauthorizedException();
     }
-    sout(`this is secret ${process.env.JWT_SECRET}`);
+
     try {
       await this.jwtService.verifyAsync(token, {
         secret: process.env.JWT_SECRET,
       });
-
-      // request.user = payload;
 
       return true;
     } catch {

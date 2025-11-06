@@ -12,8 +12,9 @@ import { RoleService } from 'role/role.service';
 import { compare, hashSync } from 'bcrypt';
 import { action } from '@core/enums/permissions.action';
 import { PermissionsGuard } from 'permissions/guard/permissions.guard';
-import { FirebaseService } from 'firebase/firebase.services';
+
 import { PermissionsD } from 'permissions/decorators/permissions.decorator';
+import { EmailService } from 'email/email.service';
 
 @Injectable()
 export class UsersServices {
@@ -21,9 +22,10 @@ export class UsersServices {
     @InjectRepository(User) private userRepository: Repository<User>,
     private jwtService: JwtService,
     readonly roleService: RoleService,
-    readonly firebaseServices: FirebaseService,
+    // readonly firebaseServices: FirebaseService,
+    private readonly emailService: EmailService,
   ) {}
-  @PermissionsD(UsersRoles.admin, action.create)
+
   async createUser(input: RegisterInput) {
     const isUserExist = await this.userRepository.findOne({
       where: { email: input.email },
@@ -42,7 +44,9 @@ export class UsersServices {
     });
 
     user.token = await this.generateToken(user.id);
-    await this.firebaseServices.sendNotification(user);
+    // await this.firebaseServices.sendNotification(user);
+    const code = await this.sendNotificationToNewUserWithVerificationCode(user);
+    user.verificationCode = code;
     await this.userRepository.save(user);
     return user;
   }
@@ -73,7 +77,6 @@ export class UsersServices {
   }
 
   @PermissionsD(UsersRoles.admin, action.create)
-  @UseGuards(PermissionsGuard)
   async getAllUsers(pagination: PaginationInput): Promise<User[]> {
     return this.userRepository.find({
       take: pagination.limit,
@@ -82,7 +85,6 @@ export class UsersServices {
   }
   // @UseInterceptors(GraphqlResponseInspector)
   @PermissionsD(action.view_user)
-  @UseGuards(PermissionsGuard)
   async findOne(id: string): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { id: id },
@@ -117,6 +119,13 @@ export class UsersServices {
         message: 'User deleted successfully',
       };
     });
+  }
+  async verifyUserEmail() {}
+  private async sendNotificationToNewUserWithVerificationCode(user: User) {
+    const codde = Math.floor(100000 + Math.random() * 900000).toString();
+    await this.emailService.sendVerificationEmail(user, codde);
+    // You can store the code in the database or cache for later verification
+    return codde;
   }
 }
 

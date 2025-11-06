@@ -14,6 +14,10 @@ import { QueueService } from './queue.service';
     BullModule.registerQueue(
       {
         name: 'email',
+        limiter: {
+          max: 400,
+          duration: 60000,
+        },
       },
       {
         name: 'notification',

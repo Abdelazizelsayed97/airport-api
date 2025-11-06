@@ -5,9 +5,11 @@ import FlightEntity from '../entities/flight.entity';
 export const pubSub = new PubSub();
 
 @Resolver(() => FlightEntity)
-export class AuthorResolver {
-  @Subscription(() => FlightEntity)
-  flightStatus() {
-    return pubSub.asyncIterableIterator('flightStatus');
+export class flightSubscriptionResolver {
+  @Subscription(() => FlightEntity, {
+    name: 'flightStatus',
+  })
+  async flightStatus() {
+    return pubSub.asyncIterableIterator('flightStatus'); 
   }
 }

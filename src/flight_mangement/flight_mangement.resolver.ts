@@ -3,20 +3,20 @@ import { FlightMangementService } from './flight_mangement.service';
 import { CreateFlightMangementInput } from './dto/create-flight_mangement.input';
 import { UpdateFlightMangementInput } from './dto/update-flight_mangement.input';
 import { FlightsFilterInput } from './dto/flight.filter.dto';
-import { UseGuards } from '@nestjs/common';
+import { UseGuards, UseInterceptors } from '@nestjs/common';
 import FlightEntity from './entities/flight.entity';
-import { Roles } from 'auth/decorators/auth.decorator';
 import { CurrentUser } from 'auth/decorators/current-user.decorator';
 import { AuthGuard } from 'auth/guard/auth.guard';
 import { UsersRoles } from '@core/enums/user.roles';
 import PaginationInput from 'pagination/pagination.dto';
 import { User } from 'users/entities/user.entity';
-import { RolesGuard } from 'users/users.guards/role.guard';
-
 import { PermissionsD } from 'permissions/decorators/permissions.decorator';
+import { PermissionsGuard } from 'permissions/guard/permissions.guard';
+import { action } from '@core/enums/permissions.action';
 
-// @UseGuards(AuthGuard, RolesGuard)
-// @Roles(UsersRoles.admin, UsersRoles.super_admin)
+// @PermissionsD(UsersRoles.admin, UsersRoles.super_admin)
+// @UseGuards(AuthGuard, PermissionsGuard)
+
 @Resolver(() => FlightEntity)
 export class FlightMangementResolver {
   constructor(
@@ -24,7 +24,8 @@ export class FlightMangementResolver {
   ) {}
 
   @Mutation(() => FlightEntity, { name: 'createFlight' })
-  @PermissionsD('admin', 'super_admin')
+  @PermissionsD(UsersRoles.super_admin)
+  @UseGuards(AuthGuard, PermissionsGuard)
   createFlight(
     @Args('createFlightMangementInput')
     createFlightMangementInput: CreateFlightMangementInput,
@@ -60,10 +61,7 @@ export class FlightMangementResolver {
     @Args('updateFlightMangementInput')
     updateFlightMangementInput: UpdateFlightMangementInput,
   ): Promise<FlightEntity> {
-    return this.flightMangementService.update(
-      updateFlightMangementInput.id,
-      updateFlightMangementInput,
-    );
+    return this.flightMangementService.update(updateFlightMangementInput);
   }
   // @PermissionsD('admin', 'super_admin')
   @Mutation(() => FlightEntity)

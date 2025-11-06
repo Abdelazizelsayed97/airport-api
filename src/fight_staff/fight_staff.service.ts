@@ -33,12 +33,19 @@ export class FightStaffService {
     return staff;
   }
 
-  findAll() {
-    return `This action returns all fightStaff`;
+  async findAll() {
+    return await this.fightStaffRepository.find({ relations: ['flight'] });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} fightStaff`;
+  async findOne(id: String) {
+    const flight = await this.fightStaffRepository.findOne({
+      where: { id: id as string },
+      relations: ['flight'],
+    });
+    if (!flight) {
+      throw new Error('Invalid input');
+    }
+    return flight;
   }
 
   async update(id: string, updateFightStaffInput: UpdateFightStaffInput) {

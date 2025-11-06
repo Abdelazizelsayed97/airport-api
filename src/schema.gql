@@ -103,7 +103,7 @@ type FlightEntity {
   departure_time: Timestamp!
   destination_airport: String!
   flight_number: String!
-  flight_status: flight_status!
+  flight_status: flight_status
   id: String!
   passagngers: [User!]
   takenSeats: Int
@@ -195,7 +195,7 @@ type Query {
   employee(id: String!): Employee!
   employees: [Employee!]!
   fetchRoles: [Role!]!
-  fightStaff(id: Int!): FlightStaff!
+  fightStaff(id: String!): FlightStaff!
   flightMangementById(id: String!): FlightEntity!
   getAllFlights(filter: FlightsFilterInput, pagination: PaginationInput): [FlightEntity!]
   getRole: Role!
@@ -225,6 +225,10 @@ input SignInDto {
   email: String!
   fcmToken: String!
   password: String!
+}
+
+type Subscription {
+  flightStatus: FlightEntity!
 }
 
 """
@@ -271,7 +275,7 @@ input UpdateFlightMangementInput {
   destination_airport: String
   flight_number: String
   flight_status: flight_status
-  id: Int!
+  id: String!
 }
 
 input UpdateNotifcationInput {

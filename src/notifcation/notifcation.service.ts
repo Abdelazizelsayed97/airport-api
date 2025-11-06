@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { CreateNotifcationInput } from './dto/create-notifcation.input';
 import { UpdateNotifcationInput } from './dto/update-notifcation.input';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -6,7 +6,7 @@ import { Repository } from 'typeorm';
 import { Notifcation } from './entities/notifcation.entity';
 import { FcmService } from 'fcm/fcm.service';
 import * as admin from 'firebase-admin';
-import {  UsersServices } from 'users/users.service';
+import { UsersServices } from 'users/users.service';
 
 @Injectable()
 export class NotifcationService {
@@ -15,6 +15,7 @@ export class NotifcationService {
     @InjectRepository(Notifcation)
     private notifcationRepository: Repository<Notifcation>,
     readonly fcmTokenService: FcmService,
+    @Inject(forwardRef(() => UsersServices))
     readonly usersService: UsersServices,
   ) {}
 
