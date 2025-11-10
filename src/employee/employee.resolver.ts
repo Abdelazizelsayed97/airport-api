@@ -3,7 +3,7 @@ import { EmployeesService } from './employee.service';
 import { Employee } from './entities/employee.entity';
 
 import { UpdateEmployeeInput } from './dto/update-employee.input';
-import { AssignToFlightDto } from './dto/assign-to-flight.dto';
+import { CreateEmployeeInput } from './dto/create-employee.input';
 
 @Resolver(() => Employee)
 export class EmployeesResolver {
@@ -11,8 +11,8 @@ export class EmployeesResolver {
 
   @Mutation(() => Employee)
   async assignEmployee(
-    @Args('assignToFlightInput', { type: () => AssignToFlightDto })
-    assignInput: AssignToFlightDto,
+    @Args('assignToFlightInput', { type: () => CreateEmployeeInput })
+    assignInput: CreateEmployeeInput,
   ) {
     return await this.employeesService.assignEmployee(assignInput);
   }

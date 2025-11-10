@@ -18,17 +18,11 @@ export class Employee {
   id: string;
   @Field(() => User)
   @OneToOne(() => User, (user) => user.id)
-  users: User;
-  @Field(() => String)
-  @Column()
-  name: string;
-  @Field(() => String)
-  @Column()
-  email: string;
+  user: User;
   @Field(() => staff_Roles)
   @Column({ type: 'enum', enum: staff_Roles, default: staff_Roles.crew })
   role: staff_Roles;
   @Field(() => [FlightStaff])
-  @ManyToMany(() => FlightStaff, (fightStaff) => fightStaff.flight)
-  assigned_flights: FlightStaff;
+  @ManyToMany(() => FlightStaff, (fightStaff) => fightStaff.employees)
+  assigned_flights: FlightStaff[];
 }

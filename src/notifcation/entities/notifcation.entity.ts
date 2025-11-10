@@ -1,9 +1,10 @@
 import { ObjectType, Field } from '@nestjs/graphql';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from 'users/entities/user.entity';
 
 @ObjectType()
 @Entity()
+@Index('idx_reciver_id', ['reciver'])
 export class Notifcation {
   @Field(() => String)
   @PrimaryGeneratedColumn('uuid')
@@ -17,10 +18,9 @@ export class Notifcation {
   @Field(() => String)
   @Column()
   type: string;
-
   @Field(() => User, { nullable: true })
-  @ManyToOne(() => User, (user) => user.receivedNotifications)
-  reciver: User;
+  @Column({ name: 'reciver', nullable: true })
+  reciver?: string;
   @Field(() => Date)
   @Column()
   createdAt: Date;

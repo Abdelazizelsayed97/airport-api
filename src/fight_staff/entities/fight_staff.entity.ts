@@ -1,12 +1,11 @@
-import { ObjectType, Field, Int } from '@nestjs/graphql';
+import { ObjectType, Field } from '@nestjs/graphql';
 import { Employee } from 'employee/entities/employee.entity';
 
-import { staff_Roles } from '@core/enums/crew.roles';
 import FlightEntity from 'flight_mangement/entities/flight.entity';
 import {
   Column,
   Entity,
-  JoinTable,
+  Index,
   ManyToMany,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -14,6 +13,7 @@ import {
 
 @ObjectType()
 @Entity()
+// @Index(['name', 'employeeID'])
 export class FlightStaff {
   @Field(() => String)
   @PrimaryGeneratedColumn('uuid')
@@ -23,12 +23,12 @@ export class FlightStaff {
   @Column()
   name: string;
 
-  @Field(() => String)
-  @ManyToMany(() => Employee, (emp) => emp.assigned_flights.id)
-  employeeID: string;
+  @Field(() => [Employee])
+  @ManyToMany(() => Employee, (emp) => emp.assigned_flights)
+  employees: Employee[];
 
   @Field(() => FlightEntity, { nullable: true })
-  @OneToOne(() => FlightEntity, (flight) => flight.assigned, {
+  @OneToOne(() => FlightEntity, (flight) => flight.id, {
     nullable: true,
   })
   flight?: FlightEntity;

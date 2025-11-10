@@ -1,5 +1,5 @@
 import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
-import { UsersServices } from './users.service';
+import { UserService } from './users.service';
 import { User } from './entities/user.entity';
 import { UpdateUserInput } from '../auth/dto/update-user.input';
 import { RolesGuard } from './users.guards/role.guard';
@@ -17,8 +17,8 @@ import { action } from '@core/enums/permissions.action';
 @UseGuards(AuthGuard, RolesGuard, PermissionsGuard)
 // @UseInterceptors(GraphqlResponseInspector)
 @Resolver(() => User)
-export class UsersResolver {
-  constructor(private readonly usersService: UsersServices) {}
+export class UserResolver {
+  constructor(private readonly usersService: UserService) {}
 
   @Query(() => [User], { name: 'users' })
   async getAllUsers(

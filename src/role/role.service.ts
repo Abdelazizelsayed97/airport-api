@@ -1,13 +1,9 @@
-import { Injectable, NotFoundException, UseGuards } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRoleInput } from './dto/create-role.input';
 import { UpdateRoleInput } from './dto/update-role.input';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Role } from './entities/role.entity';
-import { PermissionsD } from 'permissions/decorators/permissions.decorator';
-import { AuthGuard } from 'auth/guard/auth.guard';
-import { PermissionsGuard } from 'permissions/guard/permissions.guard';
-import { action } from '@core/enums/permissions.action';
 
 @Injectable()
 export class RoleService {

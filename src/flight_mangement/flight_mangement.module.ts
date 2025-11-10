@@ -4,7 +4,7 @@ import { FlightMangementResolver } from './flight_mangement.resolver';
 
 import { TypeOrmModule } from '@nestjs/typeorm';
 import FlightEntity from './entities/flight.entity';
-import { UsersModule } from 'users/users.module';
+import { UserModule } from 'users/users.module';
 import { flightSubscriptionResolver } from './subscriptions/flight.subscription.resolver';
 
 @Module({
@@ -14,6 +14,6 @@ import { flightSubscriptionResolver } from './subscriptions/flight.subscription.
     flightSubscriptionResolver,
   ],
   exports: [FlightMangementService],
-  imports: [TypeOrmModule.forFeature([FlightEntity]), UsersModule],
+  imports: [TypeOrmModule.forFeature([FlightEntity]), UserModule],
 })
 export class FlightMangementModule {}

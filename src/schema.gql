@@ -8,11 +8,6 @@ type AirLine {
   name: String!
 }
 
-input AssignToFlightDto {
-  employeeId: String!
-  flightId: String!
-}
-
 type Book {
   flightNumber: String!
   id: String!
@@ -32,6 +27,11 @@ input CreateBookInput {
   userId: String!
 }
 
+input CreateEmployeeInput {
+  role: staff_Roles!
+  user_id: String!
+}
+
 input CreateFcmInput {
   deviceInfo: String
   isActive: Boolean!
@@ -40,7 +40,7 @@ input CreateFcmInput {
 }
 
 input CreateFightStaffInput {
-  employeeID: String!
+  employeeIds: [String!]!
   fight_id: String!
   name: String!
   role: staff_Roles!
@@ -78,13 +78,11 @@ scalar DateTime
 
 type Employee {
   assigned_flights: [FlightStaff!]!
-  email: String!
 
   """Example field (placeholder)"""
   id: String!
-  name: String!
   role: staff_Roles!
-  users: User!
+  user: User!
 }
 
 type Fcm {
@@ -110,7 +108,7 @@ type FlightEntity {
 }
 
 type FlightStaff {
-  employeeID: String!
+  employees: [Employee!]!
   flight: FlightEntity
   id: String!
   name: String!
@@ -123,7 +121,7 @@ input FlightsFilterInput {
 }
 
 type Mutation {
-  assignEmployee(assignToFlightInput: AssignToFlightDto!): Employee!
+  assignEmployee(assignToFlightInput: CreateEmployeeInput!): Employee!
   createAirLine(createAirLineInput: CreateAirLineInput!): AirLine!
   createBook(createBookInput: CreateBookInput!): Book!
   createFightStaff(createFightStaffInput: CreateFightStaffInput!): FlightStaff!
@@ -138,7 +136,7 @@ type Mutation {
   removeBook(id: String!): Book!
   removeEmployee(id: String!): Employee!
   removeFcmToken(token: String!): Boolean!
-  removeFightStaff(id: Int!): FlightStaff!
+  removeFightStaff(id: String!): FlightStaff!
   removeFlightMangement(id: String!): FlightEntity!
   removeNotifcation(id: String!): Notifcation!
   updateAirLine(updateAirLineInput: UpdateAirLineInput!): AirLine!
@@ -251,14 +249,13 @@ input UpdateBookInput {
 }
 
 input UpdateEmployeeInput {
-  email: String
   id: String!
-  name: String
   role: staff_Roles
+  user_id: String
 }
 
 input UpdateFightStaffInput {
-  employeeID: String
+  employeeIds: [String!]
   fight_id: String
   id: String!
   name: String
@@ -300,10 +297,8 @@ input UpdateUserInput {
 type User {
   bookingList: [Book!]
   email: String!
-  fcm: [Fcm!]
   id: String!
   name: String!
-  password: String!
   role: Role!
   token: String!
 }

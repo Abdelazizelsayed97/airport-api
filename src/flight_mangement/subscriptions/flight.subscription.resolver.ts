@@ -10,6 +10,6 @@ export class flightSubscriptionResolver {
     name: 'flightStatus',
   })
   async flightStatus() {
-    return pubSub.asyncIterableIterator('flightStatus'); 
+    return pubSub.asyncIterableIterator('flightStatus');
   }
 }

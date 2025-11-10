@@ -9,8 +9,10 @@ import { RolesGuard } from 'users/users.guards/role.guard';
 import { Roles } from './decorators/auth.decorator';
 import { PermissionsD } from 'permissions/decorators/permissions.decorator';
 import { action } from '@core/enums/permissions.action';
+import { UserInspectorMiddleware } from 'common/user-inspector-middleware';
 
 @Resolver(() => User)
+  
 export class AuthResolver {
   constructor(private readonly authService: AuthService) {}
 

@@ -1,43 +1,37 @@
-import {
-  forwardRef,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Employee } from './entities/employee.entity';
 import { Repository } from 'typeorm';
-
 import { UpdateEmployeeInput } from './dto/update-employee.input';
-import { UsersServices } from 'users/users.service';
-import { AssignToFlightDto } from './dto/assign-to-flight.dto';
+
+import Dataloader from 'dataloader';
+import { CreateEmployeeInput } from './dto/create-employee.input';
 
 @Injectable()
 export class EmployeesService {
   constructor(
-    private readonly usersService: UsersServices,
-    @Inject(forwardRef(() => UsersServices))
     @InjectRepository(Employee)
     private employeeRepository: Repository<Employee>,
   ) {}
-  async assignEmployee(assignToFlightDto: AssignToFlightDto) {
-    const employee = await this.findOne(assignToFlightDto.employeeId);
+  async assignEmployee(assignToFlightDto: CreateEmployeeInput) {
+    const employee = await this.findOne(assignToFlightDto.user_id);
     if (!employee) {
       throw new NotFoundException('NotFound');
     }
 
-    const user = await this.usersService.findOne(employee.users.id);
+    this.employeeRepository.create(employee);
 
-    await this.employeeRepository.update(
-      assignToFlightDto.employeeId,
-      employee,
-    );
-
-    return employee;
+    return await this.employeeRepository.save(employee);
   }
 
   async findAll() {
-    return await this.employeeRepository.find();
+    return new Dataloader(async (ids: string[]) => {
+      const employees = await this.employeeRepository.find({
+        where: ids.map((id) => ({ id })),
+      });
+      const employeeMap = new Map(employees.map((emp) => [emp.id, emp]));
+      return ids.map((id) => employeeMap.get(id));
+    });
   }
 
   async findOne(id: string) {
@@ -45,12 +39,18 @@ export class EmployeesService {
     if (!employee) {
       throw new NotFoundException('NotFound');
     }
-
     return await this.employeeRepository.findOneBy({ id });
   }
 
   async update(updateEmployeeInput: UpdateEmployeeInput) {
-    return `This action updates a #${updateEmployeeInput.id} employee`;
+    const employee = await this.findOne(updateEmployeeInput.id);
+    if (!employee) {
+      throw new NotFoundException('NotFound');
+    }
+
+    Object.assign(employee, updateEmployeeInput);
+    return await this.employeeRepository.save(employee);
+    return;
   }
 
   async remove(id: string) {

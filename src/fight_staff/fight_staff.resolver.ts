@@ -43,7 +43,7 @@ export class FightStaffResolver {
   }
 
   @Mutation(() => FlightStaff)
-  removeFightStaff(@Args('id', { type: () => Int }) id: number) {
+  removeFightStaff(@Args('id', { type: () => String }) id: string) {
     return this.fightStaffService.remove(id);
   }
 }

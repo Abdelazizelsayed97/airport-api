@@ -5,65 +5,86 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateFightStaffInput } from './dto/create-fight_staff.input';
 import { UpdateFightStaffInput } from './dto/update-fight_staff.input';
 import { FlightMangementService } from 'flight_mangement/flight_mangement.service';
+import { Employee } from 'employee/entities/employee.entity';
 
 @Injectable()
 export class FightStaffService {
   constructor(
     @InjectRepository(FlightStaff)
     private fightStaffRepository: Repository<FlightStaff>,
+    @InjectRepository(Employee)
+    private employeeRepository: Repository<Employee>,
     private flightMangementService: FlightMangementService,
   ) {}
-  assignMember(createFightStaffInput: CreateFightStaffInput): FlightStaff {
-    // const flight = await this.flightRepository.findOne({
-    //   where: { id: createFightStaffInput.flightId },
-    // });
+  async assignMember(
+    createFightStaffInput: CreateFightStaffInput,
+  ): Promise<FlightStaff> {
     if (!createFightStaffInput) {
       throw new Error('Invalid input');
     }
-    const flight = this.flightMangementService.findOne(
+
+    const flight = await this.flightMangementService.findOne(
       createFightStaffInput.fight_id,
     );
+
+    const employees = await this.employeeRepository.findByIds(
+      createFightStaffInput.employeeIds,
+    );
+
     const staff = this.fightStaffRepository.create({
       ...createFightStaffInput,
-      ...flight,
+      flight: flight,
+      employees: employees,
     });
-    this.fightStaffRepository.save({
-      ...createFightStaffInput,
-    });
-    return staff;
+
+    return this.fightStaffRepository.save(staff);
   }
 
-  async findAll() {
-    return await this.fightStaffRepository.find({ relations: ['flight'] });
+  async findAll(): Promise<FlightStaff[]> {
+    return await this.fightStaffRepository.find({ relations: ['flight', 'employees'] });
   }
 
-  async findOne(id: String) {
-    const flight = await this.fightStaffRepository.findOne({
+  async findOne(id: String): Promise<FlightStaff> {
+    const flightStaff = await this.fightStaffRepository.findOne({
       where: { id: id as string },
-      relations: ['flight'],
+      relations: ['flight', 'employees'],
     });
-    if (!flight) {
+    if (!flightStaff) {
       throw new Error('Invalid input');
     }
-    return flight;
+    return flightStaff;
   }
 
-  async update(id: string, updateFightStaffInput: UpdateFightStaffInput) {
-    const currentFlight = await this.fightStaffRepository.findOne({
+  async update(
+    id: string,
+    updateFightStaffInput: UpdateFightStaffInput,
+  ): Promise<FlightStaff> {
+    const currentFlightStaff = await this.fightStaffRepository.findOne({
       where: { id: id },
-      relations: ['flight'],
+      relations: ['flight', 'employees'],
     });
-    if (!currentFlight) {
+    if (!currentFlightStaff) {
       throw new Error('Invalid input');
     }
-    const flight = Object.assign(id, updateFightStaffInput);
 
-    return this.fightStaffRepository.save({
-      flight,
-    });
+    if (updateFightStaffInput.employeeIds) {
+      currentFlightStaff.employees = await this.employeeRepository.findByIds(
+        updateFightStaffInput.employeeIds,
+      );
+    }
+
+    Object.assign(currentFlightStaff, updateFightStaffInput);
+
+    return this.fightStaffRepository.save(currentFlightStaff);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} fightStaff`;
+  async remove(id: string): Promise<FlightStaff> {
+    const flightMember = await this.fightStaffRepository.findOne({
+      where: { id: id },
+    });
+    if (!flightMember) {
+      throw new Error('Flight staff member not found');
+    }
+    return this.fightStaffRepository.remove(flightMember);
   }
 }

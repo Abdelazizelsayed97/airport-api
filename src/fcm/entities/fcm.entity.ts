@@ -1,9 +1,15 @@
 import { ObjectType, Field, Int, ID } from '@nestjs/graphql';
-import { PrimaryGeneratedColumn, Column, ManyToOne, Entity } from 'typeorm';
-import { User } from 'users/entities/user.entity';
+import {
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  Entity,
+  Index,
+} from 'typeorm';
 
 @ObjectType()
 @Entity({ synchronize: true })
+@Index('idx_user_id', ['user_id'])
 export class Fcm {
   @Field(() => String)
   @PrimaryGeneratedColumn('uuid')
@@ -13,8 +19,8 @@ export class Fcm {
   @Column()
   token: string;
 
-  @ManyToOne(() => User, (user) => user.fcm, { onDelete: 'CASCADE' })
-  user: User;
+  @Column()
+  user_id: string;
 
   @Field({ nullable: true })
   @Column({ nullable: true })

@@ -9,8 +9,6 @@ import {
   ManyToOne,
 } from 'typeorm';
 import { Role } from '../../role/entities/role.entity';
-import { Fcm } from 'fcm/entities/fcm.entity';
-import { Notifcation } from '../../notifcation/entities/notifcation.entity';
 
 @ObjectType()
 @Entity({ synchronize: true })
@@ -19,7 +17,7 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-@Field(() => String)
+  @Field(() => String)
   @Column({ unique: true })
   email: string;
 
@@ -31,7 +29,6 @@ export class User {
   @ManyToOne(() => Role, { eager: true })
   role: Role;
 
-  @Field()
   @Exclude()
   @Column()
   password: string;
@@ -43,15 +40,7 @@ export class User {
   @Field(() => String)
   @Column()
   token: string;
-  @Field(() => [Fcm], { nullable: true })
-  @OneToMany(() => Fcm, (fcm) => fcm.user, { nullable: true })
-  fcm?: Fcm[];
 
-  @OneToMany(() => Notifcation, (notification) => notification.reciver)
-  sentNotifications: Notifcation[];
-
-  @OneToMany(() => Notifcation, (notification) => notification.reciver)
-  receivedNotifications: Notifcation[];
   @Column({ default: false })
-  verificationCode : string;
+  verificationCode: string;
 }

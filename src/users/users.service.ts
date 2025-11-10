@@ -1,29 +1,27 @@
-import { Injectable, UseGuards } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { User } from './entities/user.entity';
-import { UpdateUserInput } from 'auth/dto/update-user.input';
-import { UsersRoles } from '@core/enums/user.roles';
-import PaginationInput from 'pagination/pagination.dto';
-import { RegisterInput } from 'auth/dto/sign-up.input';
-import { JwtService } from '@nestjs/jwt';
-import { SignInDto } from 'auth/dto/sign-in.input';
-import { RoleService } from 'role/role.service';
-import { compare, hashSync } from 'bcrypt';
-import { action } from '@core/enums/permissions.action';
-import { PermissionsGuard } from 'permissions/guard/permissions.guard';
-
-import { PermissionsD } from 'permissions/decorators/permissions.decorator';
-import { EmailService } from 'email/email.service';
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { User } from "./entities/user.entity";
+import { UpdateUserInput } from "auth/dto/update-user.input";
+import { UsersRoles } from "@core/enums/user.roles";
+import PaginationInput from "pagination/pagination.dto";
+import { RegisterInput } from "auth/dto/sign-up.input";
+import { JwtService } from "@nestjs/jwt";
+import { SignInDto } from "auth/dto/sign-in.input";
+import { RoleService } from "role/role.service";
+import { compare, hashSync } from "bcrypt";
+import { action } from "@core/enums/permissions.action";
+import { PermissionsD } from "permissions/decorators/permissions.decorator";
+import { EmailService } from "email/email.service";
 
 @Injectable()
-export class UsersServices {
+export class UserService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
     private jwtService: JwtService,
     readonly roleService: RoleService,
     // readonly firebaseServices: FirebaseService,
-    private readonly emailService: EmailService,
+    private readonly emailService: EmailService
   ) {}
 
   async createUser(input: RegisterInput) {
@@ -34,7 +32,7 @@ export class UsersServices {
     });
 
     if (isUserExist) {
-      throw new Error('User already exists with this email');
+      throw new Error("User already exists with this email");
     }
     const hashedPassword = hashSync(input.password, 10);
     input.password = hashedPassword;
@@ -45,10 +43,15 @@ export class UsersServices {
 
     user.token = await this.generateToken(user.id);
     // await this.firebaseServices.sendNotification(user);
+    sout("reavhed here");
     const code = await this.sendNotificationToNewUserWithVerificationCode(user);
+    sout("reavhed here");
     user.verificationCode = code;
     await this.userRepository.save(user);
-    return user;
+    return {
+      ...user,
+      message: "please verify your email to complete registration",
+    };
   }
   async verifyUser(input: SignInDto): Promise<User> {
     const user = await this.userRepository.findOne({
@@ -59,7 +62,7 @@ export class UsersServices {
     }
     const hashedPassword = hashSync(input.password, 10);
     if (await compare(hashedPassword, user.password)) {
-      throw new Error('Invalid credentials');
+      throw new Error("Invalid credentials");
     } else {
       user.role = await this.roleService.findByName(user.role.name);
       user.token = await this.generateToken(user.id);
@@ -70,7 +73,7 @@ export class UsersServices {
   private async generateToken(user_id: string) {
     const tokenPayload = { id: user_id };
     const token = this.jwtService.sign(tokenPayload, {
-      expiresIn: '1h',
+      expiresIn: "1h",
       secret: process.env.JWT_SECRET,
     });
     return token;
@@ -88,7 +91,7 @@ export class UsersServices {
   async findOne(id: string): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { id: id },
-      relations: ['bookingList', 'role'],
+      relations: ["bookingList", "role"],
       cache: true,
     });
 
@@ -114,17 +117,29 @@ export class UsersServices {
     if (!user) {
       throw new Error("This user doesn't exist");
     }
-    await this.userRepository.delete(id).then((/**res */) => {
+    await this.userRepository.delete(id).then((res) => {
       return {
-        message: 'User deleted successfully',
+        res,
+        message: "User deleted successfully",
       };
     });
   }
-  async verifyUserEmail() {}
+  async verifyUserEmail(userId: string, code: string): Promise<User> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new Error("This user doesn't exist");
+    }
+    if (user.verificationCode !== code) {
+      throw new Error("Invalid verification code");
+    }
+
+    return user;
+  }
   private async sendNotificationToNewUserWithVerificationCode(user: User) {
     const codde = Math.floor(100000 + Math.random() * 900000).toString();
+    sout("reavhed here 2");
     await this.emailService.sendVerificationEmail(user, codde);
-    // You can store the code in the database or cache for later verification
+    sout("reavhed here 3");
     return codde;
   }
 }

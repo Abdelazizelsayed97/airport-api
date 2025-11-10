@@ -19,7 +19,7 @@ export class PermissionsGuard implements CanActivate {
       permission_key,
       [context.getHandler(), context.getClass()],
     );
-
+    
     if (!requiredPermissions) {
       return true;
     }

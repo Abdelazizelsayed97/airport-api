@@ -1,27 +1,19 @@
-import {
-  forwardRef,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateBookInput } from './dto/create-book.input';
 import { UpdateBookInput } from './dto/update-book.input';
 import { Book } from './entities/book.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UsersRoles } from '../core/enums/user.roles';
 
 import { Repository } from 'typeorm';
 
-import { UsersServices } from '../users/users.service';
+import { UserService } from '../users/users.service';
 import PaginationInput from '../pagination/pagination.dto';
 
 @Injectable()
 export class BookService {
   constructor(
     @InjectRepository(Book) private bookRepository: Repository<Book>,
-
-    @Inject(forwardRef(() => UsersServices))
-    private readonly usersService: UsersServices,
+    private readonly usersService: UserService,
   ) {}
 
   async create(createBookInput: CreateBookInput): Promise<Book> {
