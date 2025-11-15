@@ -1,22 +1,22 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Employee } from './entities/employee.entity';
-import { Repository } from 'typeorm';
-import { UpdateEmployeeInput } from './dto/update-employee.input';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Employee } from "./entities/employee.entity";
+import { Repository } from "typeorm";
+import { UpdateEmployeeInput } from "./dto/update-employee.input";
+import Dataloader from "dataloader";
 
-import Dataloader from 'dataloader';
-import { CreateEmployeeInput } from './dto/create-employee.input';
+import { CreateEmployeeInput } from "./dto/create-employee.input";
 
 @Injectable()
 export class EmployeesService {
   constructor(
     @InjectRepository(Employee)
-    private employeeRepository: Repository<Employee>,
+    private employeeRepository: Repository<Employee>
   ) {}
   async assignEmployee(assignToFlightDto: CreateEmployeeInput) {
     const employee = await this.findOne(assignToFlightDto.user_id);
     if (!employee) {
-      throw new NotFoundException('NotFound');
+      throw new NotFoundException("NotFound");
     }
 
     this.employeeRepository.create(employee);
@@ -37,7 +37,7 @@ export class EmployeesService {
   async findOne(id: string) {
     const employee = this.employeeRepository.findOneBy({ id });
     if (!employee) {
-      throw new NotFoundException('NotFound');
+      throw new NotFoundException("NotFound");
     }
     return await this.employeeRepository.findOneBy({ id });
   }
@@ -45,7 +45,7 @@ export class EmployeesService {
   async update(updateEmployeeInput: UpdateEmployeeInput) {
     const employee = await this.findOne(updateEmployeeInput.id);
     if (!employee) {
-      throw new NotFoundException('NotFound');
+      throw new NotFoundException("NotFound");
     }
 
     Object.assign(employee, updateEmployeeInput);

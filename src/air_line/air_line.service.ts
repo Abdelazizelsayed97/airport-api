@@ -1,16 +1,16 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { AirLine } from './entities/air_line.entity';
-import { Repository } from 'typeorm';
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { AirLine } from "./entities/air_line.entity";
+import { Repository } from "typeorm";
 
-import { CreateAirLineInput } from './dto/create-air_line.input';
-import { UpdateAirLineInput } from './dto/update-air_line.input';
-import PaginationInput from 'pagination/pagination.dto';
+import { CreateAirLineInput } from "./dto/create-air_line.input";
+import { UpdateAirLineInput } from "./dto/update-air_line.input";
+import PaginationInput from "pagination/pagination.dto";
 
 @Injectable()
 export class AirLinesService {
   constructor(
-    @InjectRepository(AirLine) private airLineRepository: Repository<AirLine>,
+    @InjectRepository(AirLine) private airLineRepository: Repository<AirLine>
   ) {}
   async create(createAirLineInput: CreateAirLineInput): Promise<AirLine> {
     if (createAirLineInput.name && createAirLineInput.country) {
@@ -19,21 +19,41 @@ export class AirLinesService {
     return {} as AirLine;
   }
 
-  findAll(
-    paginationInput: PaginationInput /**paginationInput: PaginationInput */,
+  async findAll(
+    paginationInput: PaginationInput = {
+      page: 1,
+      limit: 10,
+    }
   ) {
-    return this.airLineRepository.find();
+    return await this.airLineRepository.find({
+      skip: (paginationInput.page! - 1) * paginationInput.limit || 0,
+      take: paginationInput.limit,
+    });
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} airLine`;
+  async findOne(id: string) {
+    const airline = await this.airLineRepository.findOne({ where: { id: id } });
+    if (!airline) {
+      throw new Error("AirLine not found");
+    }
+    return airline;
   }
 
-  update(id: string, updateAirLineInput: UpdateAirLineInput) {
-    return `This action updates a #${id} airLine`;
+  async update(id: string, updateAirLineInput: UpdateAirLineInput) {
+    const airline = await this.findOne(updateAirLineInput.id);
+    if (!airline) {
+      throw new Error("AirLine not found");
+    }
+    Object.assign(airline, updateAirLineInput);
+    return await this.airLineRepository.save(airline);
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} airLine`;
+  async remove(id: string) {
+    await this.airLineRepository.delete(id).then((res) => {
+      return {
+        res,
+        message: "AirLine deleted successfully",
+      };
+    });
   }
 }

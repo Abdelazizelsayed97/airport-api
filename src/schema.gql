@@ -22,7 +22,6 @@ input CreateAirLineInput {
 
 input CreateBookInput {
   flightNumber: String!
-  role: UsersRoles!
   seatNumber: String!
   userId: String!
 }
@@ -159,7 +158,7 @@ type Notifcation {
 }
 
 input PaginationInput {
-  limit: Int! = 20
+  limit: Int = 20
   page: Int = 1
 }
 
@@ -187,7 +186,7 @@ enum PermissionsAction {
 
 type Query {
   airLine(id: String!): AirLine!
-  airLines(paginationInput: PaginationInput!): [AirLine!]!
+  airLines(paginationInput: PaginationInput): [AirLine!]
   allNotifcation(user_id: String!): [Notifcation!]!
   book(id: String!): Book!
   employee(id: String!): Employee!
@@ -201,7 +200,7 @@ type Query {
   me: User!
   notifcation(id: String!): Notifcation!
   removeRole: String!
-  users(paginate: PaginationInput!): [User!]!
+  users(paginate: PaginationInput): [User!]
 }
 
 input RegisterInput {
@@ -243,7 +242,6 @@ input UpdateAirLineInput {
 input UpdateBookInput {
   flightNumber: String
   id: String!
-  role: UsersRoles
   seatNumber: String
   userId: String
 }

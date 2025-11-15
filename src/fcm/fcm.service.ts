@@ -28,9 +28,11 @@ export class FcmService {
     if (existingForUser) {
       throw new Error("Token already exists for this user");
     }
+
     const newFcm = await this.fcmRepository.create({
       ...createFcmInput,
     });
+    
     return await this.fcmRepository.save(newFcm);
   }
 
@@ -40,7 +42,7 @@ export class FcmService {
     });
     if (existing) return existing;
     const fcm = this.fcmRepository.create({ ...input });
-    return this.fcmRepository.save(fcm);
+    return await this.fcmRepository.save(fcm);
   }
 
   async getUserTokens(userId: string) {

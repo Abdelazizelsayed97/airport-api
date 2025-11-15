@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, UseGuards } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { User } from "./entities/user.entity";
@@ -13,6 +13,9 @@ import { compare, hashSync } from "bcrypt";
 import { action } from "@core/enums/permissions.action";
 import { PermissionsD } from "permissions/decorators/permissions.decorator";
 import { EmailService } from "email/email.service";
+import { FcmService } from "fcm/fcm.service";
+import * as DataLoader from "dataloader";
+import { PermissionsGuard } from "permissions/guard/permissions.guard";
 
 @Injectable()
 export class UserService {
@@ -21,7 +24,8 @@ export class UserService {
     private jwtService: JwtService,
     readonly roleService: RoleService,
     // readonly firebaseServices: FirebaseService,
-    private readonly emailService: EmailService
+    private readonly emailService: EmailService,
+    private readonly fcmTokenService: FcmService
   ) {}
 
   async createUser(input: RegisterInput) {
@@ -47,7 +51,13 @@ export class UserService {
     const code = await this.sendNotificationToNewUserWithVerificationCode(user);
     sout("reavhed here");
     user.verificationCode = code;
+
     await this.userRepository.save(user);
+    await this.fcmTokenService.registerToken(user, {
+      user_id: user.id,
+      token: input.fcmToken,
+      isActive: true,
+    });
     return {
       ...user,
       message: "please verify your email to complete registration",
@@ -80,10 +90,20 @@ export class UserService {
   }
 
   @PermissionsD(UsersRoles.admin, action.create)
-  async getAllUsers(pagination: PaginationInput): Promise<User[]> {
-    return this.userRepository.find({
-      take: pagination.limit,
-      // skip: (pagination.page || 0) * pagination.limit,
+  @UseGuards(PermissionsGuard)
+  async getAllUsers(pagination?: PaginationInput): Promise<User[]> {
+    // return new DataLoader(async (ids: string[],) => {
+    //   const users = await this.userRepository.find({
+    //     take: pagination.limit,
+    //     // skip: (pagination.page || 0) * pagination.limit,
+    //   });
+    //   const userMap = new Map(users.map((user) => [user.id, user]));
+    //   return ids.map((id) => userMap.get(id));
+    // });
+    if (pagination) sout("reavhed here" + pagination.limit);
+    return await this.userRepository.find({
+      // take: pagination?.limit,
+      // skip: (pagination?.page! - 1) * pagination?.limit || 0,
     });
   }
   // @UseInterceptors(GraphqlResponseInspector)

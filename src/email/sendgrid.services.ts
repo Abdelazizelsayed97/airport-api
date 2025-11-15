@@ -1,22 +1,22 @@
 import { Injectable } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import MailService = require("@sendgrid/mail/src/mail");
+
 import { sout } from "users/users.service";
+import sgMail from "@sendgrid/mail";
 
 @Injectable()
 export class SendGridService {
-  constructor(private readonly configService: ConfigService) {
-    MailService.setApiKey(process.env.SENDGRID_API_KEY!);
-    sout("SendGrid API Key set" + process.env.SENDGRID_API_KEY);
-    MailService.setTwilioEmailAuth(
-      process.env.SENDGRID_SENDER_EMAIL!,
-      "Aa12345678@"
-    );
+  constructor() {
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
+    sout("SendGrid API Key set" + process.env.SENDGRID_API_KEY!);
   }
-
   async send(
-    mail: MailService.MailDataRequired
-  ): Promise<[MailService.ClientResponse, {}]> {
-    return await MailService.send(mail);
+    mail: sgMail.MailDataRequired
+  ): Promise<[sgMail.ClientResponse, {}]> {
+    try {
+      return await sgMail.send(mail);
+    } catch (e) {
+      sout("Error sending email: " + e);
+      throw new Error(e);
+    }
   }
 }

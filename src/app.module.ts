@@ -12,7 +12,6 @@ import { AuthModule } from "./auth/auth.module";
 import { AirLinesModule } from "air_line/air_line.module";
 import { EmployeeModule } from "employee/employee.module";
 import { RoleModule } from "./role/role.module";
-import { ConfigModule } from "@nestlib/config";
 import { CreateSuperAdminSeeder } from "./super.admin.seeder";
 import { User } from "./users/entities/user.entity";
 import { Role } from "./role/entities/role.entity";
@@ -22,6 +21,8 @@ import { FcmModule } from "./fcm/fcm.module";
 import { EmailModule } from "./email/email.module";
 import { QueueModule } from "@app/queue/queue.module";
 import { UserInspectorMiddleware } from "common/user-inspector-middleware";
+import { ConfigModule } from "@nestjs/config";
+import { NodemailerModule } from './nodemailer/nodemailer.module';
 
 @Module({
   imports: [
@@ -66,7 +67,7 @@ import { UserInspectorMiddleware } from "common/user-inspector-middleware";
       inject: [JwtService, UserService],
     }),
     ConfigModule.forRoot({
-      files: [".env"],
+      envFilePath: ".env",
     }),
     JwtModule.register({
       global: true,
@@ -86,18 +87,9 @@ import { UserInspectorMiddleware } from "common/user-inspector-middleware";
     FcmModule,
     EmailModule,
     QueueModule,
+    NodemailerModule,
   ],
-  providers: [
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: AuthGuard,
-    // },
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: PermissionsGuard,
-    // },
-    CreateSuperAdminSeeder,
-  ],
+  providers: [CreateSuperAdminSeeder],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
