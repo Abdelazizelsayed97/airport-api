@@ -14,8 +14,9 @@ import { action } from "@core/enums/permissions.action";
 import { PermissionsD } from "permissions/decorators/permissions.decorator";
 import { EmailService } from "email/email.service";
 import { FcmService } from "fcm/fcm.service";
-import * as DataLoader from "dataloader";
+import DataLoader from "dataloader";
 import { PermissionsGuard } from "permissions/guard/permissions.guard";
+import { DataLoaderService } from "@app/dataloader/dataloader.service";
 
 @Injectable()
 export class UserService {
@@ -23,9 +24,9 @@ export class UserService {
     @InjectRepository(User) private userRepository: Repository<User>,
     private jwtService: JwtService,
     readonly roleService: RoleService,
-    // readonly firebaseServices: FirebaseService,
     private readonly emailService: EmailService,
-    private readonly fcmTokenService: FcmService
+    private readonly fcmTokenService: FcmService,
+    private readonly dataLoaderService: DataLoaderService
   ) {}
 
   async createUser(input: RegisterInput) {
@@ -92,19 +93,31 @@ export class UserService {
   @PermissionsD(UsersRoles.admin, action.create)
   @UseGuards(PermissionsGuard)
   async getAllUsers(pagination?: PaginationInput): Promise<User[]> {
-    // return new DataLoader(async (ids: string[],) => {
-    //   const users = await this.userRepository.find({
-    //     take: pagination.limit,
-    //     // skip: (pagination.page || 0) * pagination.limit,
-    //   });
-    //   const userMap = new Map(users.map((user) => [user.id, user]));
-    //   return ids.map((id) => userMap.get(id));
-    // });
-    if (pagination) sout("reavhed here" + pagination.limit);
-    return await this.userRepository.find({
-      // take: pagination?.limit,
-      // skip: (pagination?.page! - 1) * pagination?.limit || 0,
+    const loader = this.createUsersLoader(pagination);
+    const users = await this.userRepository.find({
+      take: pagination?.limit,
+      skip: pagination ? ((pagination.page || 1) - 1) * pagination.limit : 0,
     });
+    sout("reavhed here" + (await loader));
+    return users;
+  }
+
+  createUsersLoader(pagination?: PaginationInput): DataLoader<string, User> {
+    return this.dataLoaderService.createLoader<string, User>(
+      async (ids: readonly string[]) => {
+        const users = await this.userRepository.find({
+          where: ids.length > 0 ? ids.map((id) => ({ id })) : undefined,
+          take: pagination?.limit,
+          skip: pagination
+            ? ((pagination.page || 1) - 1) * pagination.limit
+            : 0,
+        });
+        const userMap = new Map(users.map((user) => [user.id, user]));
+        return ids.map(
+          (id) => userMap.get(id) || new Error(`User not found: ${id}`)
+        );
+      }
+    );
   }
   // @UseInterceptors(GraphqlResponseInspector)
   @PermissionsD(action.view_user)

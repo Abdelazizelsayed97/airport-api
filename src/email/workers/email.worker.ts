@@ -4,9 +4,7 @@ import { OnModuleInit } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Job } from "bullmq";
 import { SendGridService } from "email/sendgrid.services";
-
 import * as fs from "fs";
-import { NodeMailerService } from "nodemailer/node.mailer.service";
 import * as path from "path";
 import { sout } from "users/users.service";
 

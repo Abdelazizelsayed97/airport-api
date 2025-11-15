@@ -22,7 +22,8 @@ import { EmailModule } from "./email/email.module";
 import { QueueModule } from "@app/queue/queue.module";
 import { UserInspectorMiddleware } from "common/user-inspector-middleware";
 import { ConfigModule } from "@nestjs/config";
-import { NodemailerModule } from './nodemailer/nodemailer.module';
+import { NodemailerModule } from "./nodemailer/nodemailer.module";
+import { DataLoaderModule } from "./app/dataloader/dataloader.module";
 
 @Module({
   imports: [
@@ -74,6 +75,7 @@ import { NodemailerModule } from './nodemailer/nodemailer.module';
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: "7d", algorithm: "HS256" },
     }),
+    DataLoaderModule,
     FlightMangementModule,
     UserModule,
     BookModule,

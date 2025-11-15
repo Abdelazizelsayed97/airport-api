@@ -3,15 +3,16 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Employee } from "./entities/employee.entity";
 import { Repository } from "typeorm";
 import { UpdateEmployeeInput } from "./dto/update-employee.input";
-import Dataloader from "dataloader";
-
+import DataLoader from "dataloader";
 import { CreateEmployeeInput } from "./dto/create-employee.input";
+import { DataLoaderService } from "@app/dataloader/dataloader.service";
 
 @Injectable()
 export class EmployeesService {
   constructor(
     @InjectRepository(Employee)
-    private employeeRepository: Repository<Employee>
+    private employeeRepository: Repository<Employee>,
+    private readonly dataLoaderService: DataLoaderService
   ) {}
   async assignEmployee(assignToFlightDto: CreateEmployeeInput) {
     const employee = await this.findOne(assignToFlightDto.user_id);
@@ -25,13 +26,21 @@ export class EmployeesService {
   }
 
   async findAll() {
-    return new Dataloader(async (ids: string[]) => {
-      const employees = await this.employeeRepository.find({
-        where: ids.map((id) => ({ id })),
-      });
-      const employeeMap = new Map(employees.map((emp) => [emp.id, emp]));
-      return ids.map((id) => employeeMap.get(id));
-    });
+    return this.createEmployeesLoader();
+  }
+
+  createEmployeesLoader(): DataLoader<string, Employee> {
+    return this.dataLoaderService.createLoader<string, Employee>(
+      async (ids: readonly string[]) => {
+        const employees = await this.employeeRepository.find({
+          where: ids.length > 0 ? ids.map((id) => ({ id })) : undefined,
+        });
+        const employeeMap = new Map(employees.map((emp) => [emp.id, emp]));
+        return ids.map(
+          (id) => employeeMap.get(id) || new Error(`Employee not found: ${id}`)
+        );
+      }
+    );
   }
 
   async findOne(id: string) {
@@ -50,7 +59,6 @@ export class EmployeesService {
 
     Object.assign(employee, updateEmployeeInput);
     return await this.employeeRepository.save(employee);
-    return;
   }
 
   async remove(id: string) {
