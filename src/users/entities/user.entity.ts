@@ -1,14 +1,17 @@
-import { ObjectType, Field } from "@nestjs/graphql";
+import { ObjectType, Field, GraphQLTimestamp } from "@nestjs/graphql";
 import { Exclude } from "class-transformer";
-import { Book } from "../../book/entities/book.entity";
+import { Booking } from "../../booking/entities/book.entity";
 import {
   Column,
   Entity,
   OneToMany,
   PrimaryGeneratedColumn,
   ManyToOne,
+  OneToOne,
+  Timestamp,
 } from "typeorm";
 import { Role } from "../../role/entities/role.entity";
+import { Employee } from "../../employee/entities/employee.entity";
 
 @ObjectType()
 @Entity({ synchronize: true })
@@ -33,9 +36,13 @@ export class User {
   @Column()
   password: string;
 
-  @Field(() => [Book], { nullable: true })
-  @OneToMany(() => Book, (booking) => booking.user, { nullable: true })
-  bookingList?: Book[];
+  @Field(() => [Booking], { nullable: true })
+  @OneToMany(() => Booking, (booking) => booking.user, { nullable: true})
+  bookingList?: Booking[];
+
+  @Field(() => Employee, { nullable: true, defaultValue: null })
+  @OneToOne(() => Employee, (employee) => employee.user, { nullable: true })
+  employee?: Employee;
 
   @Field(() => String)
   @Column()
@@ -43,4 +50,16 @@ export class User {
 
   @Column({ default: "" })
   verificationCode: string;
+
+  @Field(() => Boolean)
+  @Column("boolean", { default: false })
+  isVerified: boolean;
+
+  @Field(() => GraphQLTimestamp)
+  @Column("timestamp", { nullable: true })
+  createdAt: Timestamp;
+
+  @Field(() => GraphQLTimestamp)
+  @Column("timestamp", { nullable: true })
+  updatedAt: Timestamp;
 }

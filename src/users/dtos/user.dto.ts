@@ -1,5 +1,5 @@
-import { Book } from 'book/entities/book.entity';
-import { Expose } from 'class-transformer';
+import { Booking } from "booking/entities/book.entity";
+import { Expose } from "class-transformer";
 
 export class UserDto {
   @Expose()
@@ -9,5 +9,5 @@ export class UserDto {
   @Expose()
   email: string;
   @Expose()
-  bookingList?: Book[];
+  bookingList?: Booking[];
 }

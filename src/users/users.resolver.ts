@@ -1,24 +1,41 @@
-import { Resolver, Query, Args, Mutation } from "@nestjs/graphql";
+import {
+  Resolver,
+  Query,
+  Args,
+  Mutation,
+  ResolveField,
+  Parent,
+} from "@nestjs/graphql";
+import { UseGuards } from "@nestjs/common";
+import DataLoader from "dataloader";
+import { InjectDataSource } from "@nestjs/typeorm";
+import { DataSource } from "typeorm";
 import { UserService } from "./users.service";
 import { User } from "./entities/user.entity";
 import { UpdateUserInput } from "../auth/dto/update-user.input";
-import { RolesGuard } from "./users.guards/role.guard";
-import { UseGuards, UseInterceptors } from "@nestjs/common";
-// import { GraphqlResponseInspector } from './inspectors/users.response.inspector';
-import { AuthGuard } from "auth/guard/auth.guard";
 import PaginationInput from "pagination/pagination.dto";
 import { CurrentUser } from "auth/decorators/current-user.decorator";
 import { PermissionsGuard } from "permissions/guard/permissions.guard";
 import { PermissionsD } from "permissions/decorators/permissions.decorator";
 import { action } from "@core/enums/permissions.action";
+import { Booking } from "booking/entities/book.entity";
+import { userBookingsLoader } from "@core/loaders/user-bookings.loader";
 
 // @Roles(UsersRoles.super_admin, UsersRoles.admin, UsersRoles.staff)
-@PermissionsD(action.create, action.create_user)
-@UseGuards(AuthGuard, RolesGuard, PermissionsGuard)
+// @PermissionsD(action.create, action.create_user)
+// @UseGuards(AuthGuard, RolesGuard, PermissionsGuard)
 // @UseInterceptors(GraphqlResponseInspector)
 @Resolver(() => User)
 export class UserResolver {
-  constructor(private readonly usersService: UserService) {}
+  private userBookingsLoaderInstance: DataLoader<string, Booking[]>;
+
+  constructor(
+    private readonly usersService: UserService,
+
+    @InjectDataSource() private dataSource: DataSource
+  ) {
+    this.userBookingsLoaderInstance = userBookingsLoader(this.dataSource);
+  }
 
   @PermissionsD(action.super_admin)
   @UseGuards(PermissionsGuard)
@@ -52,5 +69,10 @@ export class UserResolver {
   @Query(() => User)
   async me(@CurrentUser() user: User) {
     return user;
+  }
+
+  @ResolveField(() => [Booking], { nullable: true })
+  async bookingList(@Parent() user: User): Promise<Booking[]> {
+    return await this.userBookingsLoaderInstance.load(user.id);
   }
 }

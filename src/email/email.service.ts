@@ -14,13 +14,12 @@ export class EmailService {
   async sendStatusNotification(
     user: any,
     entityName: string,
-    oldStatus: string,
+
     newStatus: string
   ) {
     await this.queueService.addStatusNotificationJob({
       user,
       entityName,
-      oldStatus,
       newStatus,
     });
   }

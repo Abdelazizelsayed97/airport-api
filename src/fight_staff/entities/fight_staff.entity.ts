@@ -1,34 +1,28 @@
-import { ObjectType, Field } from '@nestjs/graphql';
-import { Employee } from 'employee/entities/employee.entity';
+import { ObjectType, Field } from "@nestjs/graphql";
+import { Employee } from "employee/entities/employee.entity";
 
-import FlightEntity from 'flight_mangement/entities/flight.entity';
+import FlightEntity from "flight_mangement/entities/flight.entity";
 import {
-  Column,
   Entity,
-  Index,
-  ManyToMany,
+  ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
-} from 'typeorm';
+} from "typeorm";
 
 @ObjectType()
-@Entity()
+@Entity({ synchronize: true })
 // @Index(['name', 'employeeID'])
 export class FlightStaff {
   @Field(() => String)
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @Field(() => String)
-  @Column()
-  name: string;
-
   @Field(() => [Employee])
-  @ManyToMany(() => Employee, (emp) => emp.assigned_flights)
+  @OneToOne(() => Employee, (emp) => emp.assigned_flights)
   employees: Employee[];
 
   @Field(() => FlightEntity, { nullable: true })
-  @OneToOne(() => FlightEntity, (flight) => flight.id, {
+  @ManyToOne(() => FlightEntity, (flight) => flight.id, {
     nullable: true,
   })
   flight?: FlightEntity;

@@ -9,15 +9,17 @@ import PaginationInput from "../pagination/pagination.dto";
 
 import { InjectRepository } from "@nestjs/typeorm";
 import { sout } from "users/users.service";
-import { DataLoaderService } from "@app/dataloader/dataloader.service";
+
 import DataLoader from "dataloader";
+import { EmailService } from "email/email.service";
 
 @Injectable()
 export class FlightMangementService {
   constructor(
     @InjectRepository(FlightEntity)
     private flightManageRepo: Repository<FlightEntity>,
-    private readonly dataLoaderService: DataLoaderService
+    // private readonly dataLoaderService: DataLoaderService
+    private readonly emailService: EmailService
   ) {}
   async create(input: CreateFlightMangementInput): Promise<FlightEntity> {
     if (!input) {
@@ -25,7 +27,6 @@ export class FlightMangementService {
     }
     const existing = await this.flightManageRepo.findOne({
       where: { flight_number: input.flight_number },
-
       loadRelationIds: true,
     });
     console.log("ttttttttt --- ttttttt" + existing?.airline);
@@ -45,27 +46,9 @@ export class FlightMangementService {
     filter: FlightsFilterInput
   ): Promise<FlightEntity[]> {
     const flights = await this.flightManageRepo.find({
-      relations: ["assigned"],
+      // relations: ["assigned", "bookings"],  
     });
     return flights;
-  }
-
-  createFlightsLoader(
-    pagination: PaginationInput,
-    filter: FlightsFilterInput
-  ): DataLoader<string, FlightEntity> {
-    return this.dataLoaderService.createLoader<string, FlightEntity>(
-      async (ids: readonly string[]) => {
-        const flights = await this.flightManageRepo.find({
-          where: ids.length > 0 ? ids.map((id) => ({ id })) : undefined,
-          relations: ["assigned"],
-        });
-        const flightMap = new Map(flights.map((flight) => [flight.id, flight]));
-        return ids.map(
-          (id) => flightMap.get(id) || new Error(`Flight not found: ${id}`)
-        );
-      }
-    );
   }
 
   async findOne(id: string): Promise<FlightEntity> {
@@ -95,6 +78,17 @@ export class FlightMangementService {
     await pubSub.publish("flightStatus", {
       flightStatus: flight,
     });
+    const flightPassanger = await this.findOne(flight.id);
+    if (flightPassanger.bookings?.length !== 0) {
+      for (const book of flightPassanger.bookings!) {
+        await this.emailService.sendStatusNotification(
+          book.user,
+          "Flight",
+          book.flight?.flight_status?.toString()!
+        );
+      }
+    }
+
     return flight;
   }
 

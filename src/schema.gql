@@ -8,10 +8,12 @@ type AirLine {
   name: String!
 }
 
-type Book {
-  flightNumber: String!
+type Booking {
+  createdAt: DateTime!
+  flight: FlightEntity
   id: String!
   seatNumber: String!
+  updatedAt: DateTime!
   user: User!
 }
 
@@ -21,7 +23,7 @@ input CreateAirLineInput {
 }
 
 input CreateBookInput {
-  flightNumber: String!
+  flightId: String!
   seatNumber: String!
   userId: String!
 }
@@ -41,8 +43,6 @@ input CreateFcmInput {
 input CreateFightStaffInput {
   employeeIds: [String!]!
   fight_id: String!
-  name: String!
-  role: staff_Roles!
 }
 
 input CreateFlightMangementInput {
@@ -76,9 +76,7 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 scalar DateTime
 
 type Employee {
-  assigned_flights: [FlightStaff!]!
-
-  """Example field (placeholder)"""
+  assigned_flights: [FlightStaff!]
   id: String!
   role: staff_Roles!
   user: User!
@@ -96,21 +94,22 @@ type FlightEntity {
   arrival_time: Timestamp!
   assigned: FlightStaff
   available_seats: Int!
+  bookings: [Booking!]
+  createdAt: DateTime!
   departure_airport: String!
   departure_time: Timestamp!
   destination_airport: String!
   flight_number: String!
   flight_status: flight_status
   id: String!
-  passagngers: [User!]
   takenSeats: Int
+  updatedAt: DateTime!
 }
 
 type FlightStaff {
   employees: [Employee!]!
   flight: FlightEntity
   id: String!
-  name: String!
 }
 
 input FlightsFilterInput {
@@ -122,7 +121,7 @@ input FlightsFilterInput {
 type Mutation {
   assignEmployee(assignToFlightInput: CreateEmployeeInput!): Employee!
   createAirLine(createAirLineInput: CreateAirLineInput!): AirLine!
-  createBook(createBookInput: CreateBookInput!): Book!
+  createBook(createBookInput: CreateBookInput!): Booking!
   createFightStaff(createFightStaffInput: CreateFightStaffInput!): FlightStaff!
   createFlight(createFlightMangementInput: CreateFlightMangementInput!): FlightEntity!
   createNotifcation(createNotifcationInput: CreateNotifcationInput!): Notifcation!
@@ -132,14 +131,14 @@ type Mutation {
   register(registerInput: RegisterInput!): User!
   registerFcmToken(input: CreateFcmInput!): Fcm!
   removeAirLine(id: String!): AirLine!
-  removeBook(id: String!): Book!
+  removeBook(id: String!): Booking!
   removeEmployee(id: String!): Employee!
   removeFcmToken(token: String!): Boolean!
   removeFightStaff(id: String!): FlightStaff!
   removeFlightMangement(id: String!): FlightEntity!
   removeNotifcation(id: String!): Notifcation!
   updateAirLine(updateAirLineInput: UpdateAirLineInput!): AirLine!
-  updateBook(updateBookInput: UpdateBookInput!): Book!
+  updateBook(updateBookInput: UpdateBookInput!): Booking!
   updateEmployee(updateEmployeeInput: UpdateEmployeeInput!): Employee!
   updateFightStaff(updateFightStaffInput: UpdateFightStaffInput!): FlightStaff!
   updateFlightMangement(updateFlightMangementInput: UpdateFlightMangementInput!): FlightEntity!
@@ -188,12 +187,14 @@ type Query {
   airLine(id: String!): AirLine!
   airLines(paginationInput: PaginationInput): [AirLine!]
   allNotifcation(user_id: String!): [Notifcation!]!
-  book(id: String!): Book!
+  book(id: String!): Booking!
+  booksforflight(flightId: String!): [Booking!]!
   employee(id: String!): Employee!
   employees: [Employee!]!
   fetchRoles: [Role!]!
   fightStaff(id: String!): FlightStaff!
   flightMangementById(id: String!): FlightEntity!
+  getAllBooks(pagination: PaginationInput): [Booking!]!
   getAllFlights(filter: FlightsFilterInput, pagination: PaginationInput): [FlightEntity!]
   getRole: Role!
   getUserById(id: String!): User!
@@ -240,7 +241,7 @@ input UpdateAirLineInput {
 }
 
 input UpdateBookInput {
-  flightNumber: String
+  flightId: String
   id: String!
   seatNumber: String
   userId: String
@@ -256,8 +257,6 @@ input UpdateFightStaffInput {
   employeeIds: [String!]
   fight_id: String
   id: String!
-  name: String
-  role: staff_Roles
 }
 
 input UpdateFlightMangementInput {
@@ -293,12 +292,16 @@ input UpdateUserInput {
 }
 
 type User {
-  bookingList: [Book!]
+  bookingList: [Booking!]
+  createdAt: Timestamp!
   email: String!
+  employee: Employee
   id: String!
+  isVerified: Boolean!
   name: String!
   role: Role!
   token: String!
+  updatedAt: Timestamp!
 }
 
 enum UsersRoles {

@@ -1,6 +1,6 @@
 import { Injectable, UseGuards } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { Repository, Timestamp } from "typeorm";
 import { User } from "./entities/user.entity";
 import { UpdateUserInput } from "auth/dto/update-user.input";
 import { UsersRoles } from "@core/enums/user.roles";
@@ -16,7 +16,6 @@ import { EmailService } from "email/email.service";
 import { FcmService } from "fcm/fcm.service";
 import DataLoader from "dataloader";
 import { PermissionsGuard } from "permissions/guard/permissions.guard";
-import { DataLoaderService } from "@app/dataloader/dataloader.service";
 
 @Injectable()
 export class UserService {
@@ -25,8 +24,7 @@ export class UserService {
     private jwtService: JwtService,
     readonly roleService: RoleService,
     private readonly emailService: EmailService,
-    private readonly fcmTokenService: FcmService,
-    private readonly dataLoaderService: DataLoaderService
+    private readonly fcmTokenService: FcmService
   ) {}
 
   async createUser(input: RegisterInput) {
@@ -44,6 +42,7 @@ export class UserService {
     const user = this.userRepository.create({
       ...input,
       role: await this.roleService.findOne(input.role),
+      createdAt: "3489758379",
     });
 
     user.token = await this.generateToken(user.id);
@@ -93,32 +92,14 @@ export class UserService {
   @PermissionsD(UsersRoles.admin, action.create)
   @UseGuards(PermissionsGuard)
   async getAllUsers(pagination?: PaginationInput): Promise<User[]> {
-    const loader = this.createUsersLoader(pagination);
     const users = await this.userRepository.find({
       take: pagination?.limit,
       skip: pagination ? ((pagination.page || 1) - 1) * pagination.limit : 0,
     });
-    sout("reavhed here" + (await loader));
+
     return users;
   }
 
-  createUsersLoader(pagination?: PaginationInput): DataLoader<string, User> {
-    return this.dataLoaderService.createLoader<string, User>(
-      async (ids: readonly string[]) => {
-        const users = await this.userRepository.find({
-          where: ids.length > 0 ? ids.map((id) => ({ id })) : undefined,
-          take: pagination?.limit,
-          skip: pagination
-            ? ((pagination.page || 1) - 1) * pagination.limit
-            : 0,
-        });
-        const userMap = new Map(users.map((user) => [user.id, user]));
-        return ids.map(
-          (id) => userMap.get(id) || new Error(`User not found: ${id}`)
-        );
-      }
-    );
-  }
   // @UseInterceptors(GraphqlResponseInspector)
   @PermissionsD(action.view_user)
   async findOne(id: string): Promise<User> {

@@ -1,21 +1,23 @@
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
-} from 'typeorm';
-import { Field, Int, ObjectType, GraphQLTimestamp } from '@nestjs/graphql';
-import { flight_status } from '../../core/enums/flight.status';
-import { User } from '../../users/entities/user.entity';
-import { FlightStaff } from 'fight_staff/entities/fight_staff.entity';
+} from "typeorm";
+import { Field, Int, ObjectType, GraphQLTimestamp } from "@nestjs/graphql";
+import { flight_status } from "../../core/enums/flight.status";
+import { FlightStaff } from "fight_staff/entities/fight_staff.entity";
+import { Booking } from "../../booking/entities/book.entity";
 
 @ObjectType()
 @Entity()
 export default class FlightEntity {
   @Field(() => String)
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
+  @Index("flight_number_index", { unique: true })
   id: string;
 
   @Field(() => String)
@@ -51,18 +53,24 @@ export default class FlightEntity {
   takenSeats?: number;
 
   @Field(() => flight_status, { nullable: true })
-  @Column({ enum: flight_status, type: 'enum' })
+  @Column({ enum: flight_status, type: "enum" })
   flight_status?: flight_status;
 
   @Field(() => FlightStaff, { nullable: true })
-  @OneToOne(() => FlightStaff, (flightStaff) => flightStaff.flight, {
+  @OneToMany(() => FlightStaff, (flightStaff) => flightStaff.flight, {
     nullable: true,
   })
+    
   @JoinColumn()
   assigned: FlightStaff;
 
-  @OneToMany(() => User, (user) => user.bookingList)
-  @Field(() => [User], { nullable: true })
-  passagngers: User[];
-  constructor() {}
+  @Field(() => [Booking], { nullable: true })
+  @OneToMany(() => Booking, (book) => book.flight?.id, { nullable: true })
+  bookings?: Booking[];
+  @Field(() => Date)
+  @Column({ nullable: true })
+  createdAt: Date;
+  @Field(() => Date)
+  @Column({ nullable: true })
+  updatedAt: Date;
 }

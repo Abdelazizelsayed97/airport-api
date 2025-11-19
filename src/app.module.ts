@@ -1,7 +1,7 @@
 import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 import { FlightMangementModule } from "./flight_mangement/flight_mangement.module";
 import { UserModule } from "./users/users.module";
-import { BookModule } from "./book/book.module";
+import { BookingModule } from "./booking/booking.module";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { GraphQLModule } from "@nestjs/graphql";
 import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
@@ -20,10 +20,8 @@ import { NotifcationModule } from "./notifcation/notifcation.module";
 import { FcmModule } from "./fcm/fcm.module";
 import { EmailModule } from "./email/email.module";
 import { QueueModule } from "@app/queue/queue.module";
-import { UserInspectorMiddleware } from "common/user-inspector-middleware";
+import { UserInspectorMiddleware } from "@core/common/user-inspector-middleware";
 import { ConfigModule } from "@nestjs/config";
-import { NodemailerModule } from "./nodemailer/nodemailer.module";
-import { DataLoaderModule } from "./app/dataloader/dataloader.module";
 
 @Module({
   imports: [
@@ -50,11 +48,10 @@ import { DataLoaderModule } from "./app/dataloader/dataloader.module";
         autoSchemaFile: join(process.cwd(), "src/schema.gql"),
         fieldResolverEnhancers: ["guards"],
         sortSchema: true,
-        // graphiql: true,
+
         playground: true,
         installSubscriptionHandlers: true,
-        // context: ({ req, res }) =>
-        //   createGraphQLContextInspector({ req, res }, jwtService, usersService),
+
         subscriptions: {
           "graphql-ws": true,
           "subscriptions-transport-ws": {
@@ -75,10 +72,10 @@ import { DataLoaderModule } from "./app/dataloader/dataloader.module";
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: "7d", algorithm: "HS256" },
     }),
-    DataLoaderModule,
+
     FlightMangementModule,
     UserModule,
-    BookModule,
+    BookingModule,
     EmployeeModule,
     AirLinesModule,
     FightStaffModule,
@@ -89,7 +86,6 @@ import { DataLoaderModule } from "./app/dataloader/dataloader.module";
     FcmModule,
     EmailModule,
     QueueModule,
-    NodemailerModule,
   ],
   providers: [CreateSuperAdminSeeder],
 })

@@ -6,14 +6,14 @@ import { Repository } from "typeorm";
 import { CreateAirLineInput } from "./dto/create-air_line.input";
 import { UpdateAirLineInput } from "./dto/update-air_line.input";
 import PaginationInput from "pagination/pagination.dto";
-import { DataLoaderService } from "@app/dataloader/dataloader.service";
+
 import DataLoader from "dataloader";
 
 @Injectable()
 export class AirLinesService {
   constructor(
     @InjectRepository(AirLine) private airLineRepository: Repository<AirLine>,
-    private readonly dataLoaderService: DataLoaderService
+
   ) {}
   async create(createAirLineInput: CreateAirLineInput): Promise<AirLine> {
     if (createAirLineInput.name && createAirLineInput.country) {
@@ -34,28 +34,7 @@ export class AirLinesService {
     });
   }
 
-  createAirLinesLoader(
-    paginationInput: PaginationInput = {
-      page: 1,
-      limit: 10,
-    }
-  ): DataLoader<string, AirLine> {
-    return this.dataLoaderService.createLoader<string, AirLine>(
-      async (ids: readonly string[]) => {
-        const airlines = await this.airLineRepository.find({
-          where: ids.length > 0 ? ids.map((id) => ({ id })) : undefined,
-          skip: (paginationInput.page! - 1) * paginationInput.limit || 0,
-          take: paginationInput.limit,
-        });
-        const airlineMap = new Map(
-          airlines.map((airline) => [airline.id, airline])
-        );
-        return ids.map(
-          (id) => airlineMap.get(id) || new Error(`Airline not found: ${id}`)
-        );
-      }
-    );
-  }
+
 
   async findOne(id: string) {
     const airline = await this.airLineRepository.findOne({ where: { id: id } });

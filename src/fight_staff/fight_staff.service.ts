@@ -5,63 +5,52 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { CreateFightStaffInput } from "./dto/create-fight_staff.input";
 import { UpdateFightStaffInput } from "./dto/update-fight_staff.input";
 import { FlightMangementService } from "flight_mangement/flight_mangement.service";
-import { Employee } from "employee/entities/employee.entity";
-import { DataLoaderService } from "@app/dataloader/dataloader.service";
-import DataLoader from "dataloader";
+
+import { EmployeesService } from "employee/employee.service";
+import { sout } from "users/users.service";
 
 @Injectable()
 export class FightStaffService {
   constructor(
     @InjectRepository(FlightStaff)
     private fightStaffRepository: Repository<FlightStaff>,
-    @InjectRepository(Employee)
-    private employeeRepository: Repository<Employee>,
+
     private flightMangementService: FlightMangementService,
-    private readonly dataLoaderService: DataLoaderService
+    private employeeService: EmployeesService
   ) {}
   async assignMember(
     createFightStaffInput: CreateFightStaffInput
   ): Promise<FlightStaff> {
-    if (!createFightStaffInput) {
-      throw new Error("Invalid input");
-    }
-
     const flight = await this.flightMangementService.findOne(
       createFightStaffInput.fight_id
     );
-
-    const employees = await this.employeeRepository.findByIds(
+    if (!flight) {
+      throw new Error("This flight doesn't exist or departed");
+    }
+    const employees = await this.employeeService.getUserIdsByFilter(
       createFightStaffInput.employeeIds
     );
 
-    const staff = this.fightStaffRepository.create({
-      ...createFightStaffInput,
-      flight: flight,
-      employees: employees,
-    });
+    const getEmployes = employees.filter((emp) =>
+      createFightStaffInput.employeeIds.includes(emp.id)
+    );
+    if (getEmployes.map((emp) => emp.assigned_flights) !== null) {
+      throw new Error("this employee is already assigned");
+    }
 
-    return this.fightStaffRepository.save(staff);
+    const staff = this.fightStaffRepository.create({
+      flight: flight,
+      employees: getEmployes,
+    });
+    return await this.fightStaffRepository.save({
+      ...staff,
+    });
   }
 
   async findAll(): Promise<FlightStaff[]> {
     return await this.fightStaffRepository.find({
       relations: ["flight", "employees"],
     });
-  }
-
-  createFlightStaffsLoader(): DataLoader<string, FlightStaff> {
-    return this.dataLoaderService.createLoader<string, FlightStaff>(
-      async (ids:  string[]) => {
-        const staffs = await this.fightStaffRepository.find({
-          where: ids.length > 0 ? ids.map((id) => ({ id })) : undefined,
-          relations: ["flight", "employees"],
-        });
-        const staffMap = new Map(staffs.map((staff) => [staff.id, staff]));
-        return ids.map(
-          (id) => staffMap.get(id)!
-        );
-      }
-    );
   }
 
   async findOne(id: String): Promise<FlightStaff> {
@@ -88,9 +77,15 @@ export class FightStaffService {
     }
 
     if (updateFightStaffInput.employeeIds) {
-      currentFlightStaff.employees = await this.employeeRepository.findByIds(
+      const employees = await this.employeeService.getUserIdsByFilter(
         updateFightStaffInput.employeeIds
       );
+      
+
+      const getEmployes = employees.filter((emp) =>
+        updateFightStaffInput.employeeIds?.includes(emp.id)
+      );
+      currentFlightStaff.employees = getEmployes;
     }
 
     Object.assign(currentFlightStaff, updateFightStaffInput);

@@ -4,14 +4,14 @@ import { UpdateRoleInput } from "./dto/update-role.input";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Role } from "./entities/role.entity";
-import { DataLoaderService } from "@app/dataloader/dataloader.service";
+
 import DataLoader from "dataloader";
 
 @Injectable()
 export class RoleService {
   constructor(
     @InjectRepository(Role) private roleRepository: Repository<Role>,
-    private readonly dataLoaderService: DataLoaderService
+
   ) {}
 
   async create(createRoleInput: CreateRoleInput) {
@@ -33,19 +33,7 @@ export class RoleService {
     return await this.roleRepository.find();
   }
 
-  createRolesLoader(): DataLoader<string, Role> {
-    return this.dataLoaderService.createLoader<string, Role>(
-      async (ids: readonly string[]) => {
-        const roles = await this.roleRepository.find({
-          where: ids.length > 0 ? ids.map((id) => ({ id })) : undefined,
-        });
-        const roleMap = new Map(roles.map((role) => [role.id, role]));
-        return ids.map(
-          (id) => roleMap.get(id) || new Error(`Role not found: ${id}`)
-        );
-      }
-    );
-  }
+
   async findByName(name: string) {
     console.log(name);
     if (name === null) {

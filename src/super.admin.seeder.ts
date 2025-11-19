@@ -1,17 +1,19 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { UsersRoles } from '@core/enums/user.roles';
-import { action } from '@core/enums/permissions.action';
-import { Role } from 'role/entities/role.entity';
-import { Repository } from 'typeorm';
-import { User } from 'users/entities/user.entity';
-import { hashSync } from 'bcrypt';
+import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { UsersRoles } from "@core/enums/user.roles";
+import { action } from "@core/enums/permissions.action";
+import { Role } from "role/entities/role.entity";
+import { Repository, Timestamp } from "typeorm";
+import { User } from "users/entities/user.entity";
+import { hashSync } from "bcrypt";
+import { JwtModule, JwtService } from "@nestjs/jwt";
 
 @Injectable()
 export class CreateSuperAdminSeeder implements OnModuleInit {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
     @InjectRepository(Role) private roleRepository: Repository<Role>,
+    @Inject() private jwtService: JwtService
   ) {}
 
   async onModuleInit() {
@@ -30,25 +32,27 @@ export class CreateSuperAdminSeeder implements OnModuleInit {
         permissions: allPermissions,
       });
       await this.roleRepository.save(superAdminRole);
-      console.log('Super admin role created with all permissions');
+      console.log("Super admin role created with all permissions");
     }
 
     const adminUser = await this.userRepository.findOne({
-      where: { email: 'super-admin@example.com' },
+      where: { email: "super-admin@app.com" },
     });
 
     if (!adminUser) {
-      const hashedPassword = hashSync('SuperAdmin123!', 10);
-      const token = 'initial-token';
+      const hashedPassword = hashSync("SuperAdmin123!", 10);
+      const token = this.jwtService.sign({ id: "super-admin@app.com" });
       const newUser = this.userRepository.create({
-        email: 'super-admin@app.com',
-        name: 'Super Admin',
+        email: "super-admin@app.com",
+        name: "Super Admin",
         password: hashedPassword,
         role: superAdminRole,
         token: token,
+        // bookingList: null,
+        createdAt: new Date(),
       });
       await this.userRepository.save(newUser);
-      console.log('Super admin user created');
+      console.log("Super admin user created");
     }
   }
 }

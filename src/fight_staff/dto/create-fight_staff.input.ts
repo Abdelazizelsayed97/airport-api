@@ -1,20 +1,12 @@
-import { InputType, Field } from '@nestjs/graphql';
-import { IsAlpha, IsEnum, IsNotEmpty, IsString } from 'class-validator';
-import { staff_Roles } from '@core/enums/crew.roles';
+import { InputType, Field } from "@nestjs/graphql";
+import { IsNotEmpty, IsString } from "class-validator";
 
 @InputType()
 export class CreateFightStaffInput {
-  @Field(() => String)
-  @IsString()
-  @IsAlpha()
-  @IsNotEmpty()
-  name: string;
-  @Field(() => staff_Roles)
-  @IsNotEmpty()
-    @IsEnum(staff_Roles)
-  role: staff_Roles;
   @Field(() => [String])
+  @IsNotEmpty()
   employeeIds: string[];
+
   @Field(() => String)
   @IsNotEmpty()
   @IsString()
