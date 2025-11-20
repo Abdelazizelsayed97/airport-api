@@ -5,9 +5,8 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { CreateFightStaffInput } from "./dto/create-fight_staff.input";
 import { UpdateFightStaffInput } from "./dto/update-fight_staff.input";
 import { FlightMangementService } from "flight_mangement/flight_mangement.service";
-
 import { EmployeesService } from "employee/employee.service";
-import { sout } from "users/users.service";
+
 
 @Injectable()
 export class FightStaffService {

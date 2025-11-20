@@ -5,6 +5,7 @@ import FlightEntity from "flight_mangement/entities/flight.entity";
 import {
   Entity,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
@@ -18,7 +19,7 @@ export class FlightStaff {
   id: string;
 
   @Field(() => [Employee])
-  @OneToOne(() => Employee, (emp) => emp.assigned_flights)
+  @OneToMany(() => Employee, (emp) => emp.assigned_flights)
   employees: Employee[];
 
   @Field(() => FlightEntity, { nullable: true })

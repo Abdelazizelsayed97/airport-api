@@ -31,7 +31,7 @@ export class EmployeesService {
       throw new NotFoundException("Employee already assigned");
     }
 
-    const newEmployee = await this.employeeRepository.create({
+    const newEmployee = this.employeeRepository.create({
       role: assignToFlightDto.role,
       user: user,
     });
@@ -40,7 +40,9 @@ export class EmployeesService {
   }
 
   async findAll() {
-    return await this.employeeRepository.find();
+    return await this.employeeRepository.find({
+      relations: ["user", "assigned_flights"],
+    });
   }
 
   async findOne(id: string) {
@@ -78,7 +80,6 @@ export class EmployeesService {
       .select("employee.id")
       .where("employee.id IN (:...ids)", { ids })
       .getRawMany();
-
-    return rows as  [];
+    return rows as [];
   }
 }

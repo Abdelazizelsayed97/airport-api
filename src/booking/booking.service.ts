@@ -51,7 +51,7 @@ export class BookingService {
     if (isExist) {
       throw new Error("This seat is already booked on this flight");
     }
-    if(flight.flight_status !== flight_status.delayed){
+    if (flight.flight_status !== flight_status.delayed) {
       throw new Error("This flight is already departed");
     }
 
@@ -60,10 +60,7 @@ export class BookingService {
       user: user,
       flight: flight,
     });
-    // await this.flightService.update({
-    //   id: flight.id,
-    //   book
-    // } );
+
     const newBook = await this.bookRepository.save(book);
 
     return newBook;
@@ -81,7 +78,6 @@ export class BookingService {
       where: {
         flight: { id: flightId },
       },
-      relations: ["user", "flight"],
     });
     return allBook;
   }

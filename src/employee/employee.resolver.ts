@@ -3,31 +3,38 @@ import {
   Query,
   Mutation,
   Args,
-  Int,
   ResolveField,
   Parent,
 } from "@nestjs/graphql";
 import { EmployeesService } from "./employee.service";
 import { Employee } from "./entities/employee.entity";
-
 import { UpdateEmployeeInput } from "./dto/update-employee.input";
 import { CreateEmployeeInput } from "./dto/create-employee.input";
-import { Booking } from "booking/entities/book.entity";
 import { User } from "users/entities/user.entity";
 import { sout } from "users/users.service";
 import DataLoader from "dataloader";
 import { InjectDataSource } from "@nestjs/typeorm";
 import { userLoader } from "@core/loaders/user.loader";
 import { DataSource } from "typeorm";
+import { PermissionsD } from "permissions/decorators/permissions.decorator";
+import { action } from "@core/enums/permissions.action";
+import { UseGuards } from "@nestjs/common";
+import { AuthGuard } from "auth/guard/auth.guard";
+import { PermissionsGuard } from "permissions/guard/permissions.guard";
+import { employeeUserLoader } from "@core/loaders/user-employee.loader";
 
 @Resolver(() => Employee)
+@PermissionsD(action.super_admin, action.view_staff)
+@UseGuards(AuthGuard, PermissionsGuard)
 export class EmployeesResolver {
   private userLoaderInstance: DataLoader<string, User>;
+  private employeeLoaderInstance: DataLoader<string, Employee>;
   constructor(
     private readonly employeesService: EmployeesService,
     @InjectDataSource() private dataSource: DataSource
   ) {
     this.userLoaderInstance = userLoader(this.dataSource);
+    this.employeeLoaderInstance = employeeUserLoader(this.dataSource);
   }
 
   @Mutation(() => Employee, { name: "assignEmployee" })
@@ -58,14 +65,5 @@ export class EmployeesResolver {
   @Mutation(() => Employee)
   removeEmployee(@Args("id", { type: () => String }) id: string) {
     return this.employeesService.remove(id);
-  }
-  @ResolveField(() => User)
-  async user(@Parent() Employee: Employee): Promise<User> {
-    sout("book: " + JSON.stringify(Employee.user));
-    if (!Employee.user || !Employee.user.id) {
-      throw new Error(`Book ${Employee.id} has no associated user`);
-    }
-
-    return await this.userLoaderInstance.load(Employee.user.id);
   }
 }
