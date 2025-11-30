@@ -11,7 +11,7 @@ import { Employee } from "./entities/employee.entity";
 import { UpdateEmployeeInput } from "./dto/update-employee.input";
 import { CreateEmployeeInput } from "./dto/create-employee.input";
 import { User } from "users/entities/user.entity";
-import { sout } from "users/users.service";
+
 import DataLoader from "dataloader";
 import { InjectDataSource } from "@nestjs/typeorm";
 import { userLoader } from "@core/loaders/user.loader";

@@ -4,16 +4,15 @@ import { FlightStaff } from "fight_staff/entities/fight_staff.entity";
 import {
   Column,
   Entity,
-
   OneToOne,
   PrimaryGeneratedColumn,
   JoinColumn,
   ManyToOne,
 } from "typeorm";
-import { User } from "users/entities/user.entity"
+import { User } from "users/entities/user.entity";
 
 @ObjectType()
-@Entity("employees", { synchronize: true })
+@Entity("employees")
 export class Employee {
   @Field(() => String)
   @PrimaryGeneratedColumn("uuid")

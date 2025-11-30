@@ -1,4 +1,3 @@
-import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 import { FlightMangementModule } from "./flight_mangement/flight_mangement.module";
 import { UserModule } from "./users/users.module";
 import { BookingModule } from "./booking/booking.module";
@@ -12,7 +11,6 @@ import { AuthModule } from "./auth/auth.module";
 import { AirLinesModule } from "air_line/air_line.module";
 import { EmployeeModule } from "employee/employee.module";
 import { RoleModule } from "./role/role.module";
-import { CreateSuperAdminSeeder } from "./super.admin.seeder";
 import { User } from "./users/entities/user.entity";
 import { Role } from "./role/entities/role.entity";
 import { UserService } from "./users/users.service";
@@ -22,6 +20,10 @@ import { EmailModule } from "./email/email.module";
 import { QueueModule } from "@app/queue/queue.module";
 import { UserInspectorMiddleware } from "@core/common/user-inspector-middleware";
 import { ConfigModule } from "@nestjs/config";
+import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
+import { UploadFileModule } from "./upload-file/upload-file.module";
+import { GeneralResponse } from "@app/g.response/general.response";
+import { APP_INTERCEPTOR } from "@nestjs/core";
 
 @Module({
   imports: [
@@ -44,20 +46,35 @@ import { ConfigModule } from "@nestjs/config";
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
       imports: [UserModule],
-      useFactory: () => ({
+      useFactory: (jwtService: JwtService, userService: UserService) => ({
         autoSchemaFile: join(process.cwd(), "src/schema.gql"),
         fieldResolverEnhancers: ["guards"],
         sortSchema: true,
-
         playground: true,
+        csrfPrevention: false,
         installSubscriptionHandlers: true,
-
+        uploads: false,
         subscriptions: {
           "graphql-ws": true,
           "subscriptions-transport-ws": {
-            onConnect: (connectionParams) => {
-              console.log(connectionParams.Authorization);
-              return { Authorization: connectionParams.Authorization };
+            onConnect: async (connectionParams) => {
+              const token = connectionParams.Authorization?.replace(
+                "Bearer ",
+                ""
+              );
+              if (token) {
+                try {
+                  const payload = await jwtService.verifyAsync(token, {
+                    secret: process.env.JWT_SECRET,
+                  });
+
+                  const user = await userService.findOne(payload.id);
+                  return { user };
+                } catch (error) {
+                  throw new Error("Invalid token");
+                }
+              }
+              return {};
             },
           },
         },
@@ -86,8 +103,14 @@ import { ConfigModule } from "@nestjs/config";
     FcmModule,
     EmailModule,
     QueueModule,
+    UploadFileModule,
   ],
-  providers: [CreateSuperAdminSeeder],
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: GeneralResponse,
+    },
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

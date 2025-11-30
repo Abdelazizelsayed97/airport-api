@@ -1,7 +1,7 @@
 import DataLoader from "dataloader";
 import { DataSource } from "typeorm";
 import { Booking } from "booking/entities/book.entity";
-import { sout } from "users/users.service";
+
 
 export const BookingsLoader = (dataSource: DataSource) => {
   return new DataLoader<string, Booking[]>(
@@ -13,8 +13,10 @@ export const BookingsLoader = (dataSource: DataSource) => {
           flightIds: [...flightIds],
         })
         .leftJoinAndSelect("book.flight", "flight")
-        .leftJoinAndSelect("book.user", "user")
+
+        .innerJoinAndSelect("book.user", "user")
         .getMany();
+
 
       const bookingsMap = new Map<string, Booking[]>();
       flightIds.forEach((id) =>

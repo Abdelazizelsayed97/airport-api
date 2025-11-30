@@ -1,19 +1,17 @@
 import { emailQueue, verification, statusNotification } from "@core/constants";
 import { Processor, WorkerHost, OnWorkerEvent } from "@nestjs/bullmq";
 import { OnModuleInit } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
+
 import { Job } from "bullmq";
 import { SendGridService } from "email/sendgrid.services";
 import * as fs from "fs";
 import * as path from "path";
-import { sout } from "users/users.service";
 
-@Processor(emailQueue)
+@Processor(emailQueue, {
+  runRetryDelay: 1000,
+})
 export class EmailWorker extends WorkerHost implements OnModuleInit {
-  constructor(
-    private readonly sendGridService: SendGridService,
-    private readonly config: ConfigService
-  ) {
+  constructor(private readonly sendGridService: SendGridService) {
     super();
   }
   onModuleInit() {
@@ -21,7 +19,6 @@ export class EmailWorker extends WorkerHost implements OnModuleInit {
   }
 
   async process(job: Job<any, any, string>): Promise<any> {
-    sout("Email Worker reached: " + job.name);
     console.log("Job name:", job.name);
     console.log("Expected names:", { verification, statusNotification });
 
@@ -36,7 +33,6 @@ export class EmailWorker extends WorkerHost implements OnModuleInit {
   }
 
   async processVerification(job: Job<any, any, string>): Promise<any> {
-    sout("Processing verification job: " + job.id);
     const { data } = job;
     const templatePath = path.join(
       __dirname,
@@ -57,9 +53,7 @@ export class EmailWorker extends WorkerHost implements OnModuleInit {
 
     await this.sendGridService.send({
       to: data.user.email,
-      // htmlContent: html,
       subject: "Verify your email address",
-      // textContent: "Verify your email address",
       html,
       from: "kareem.alsayed009@gmail.com",
     });
@@ -111,6 +105,10 @@ export class EmailWorker extends WorkerHost implements OnModuleInit {
   @OnWorkerEvent("completed")
   onCompleted(job: Job) {
     console.log(`Job ${job.id} completed successfully.`);
+  }
+  @OnWorkerEvent("progress")
+  onProgress(job: Job) {
+    console.log(`Job ${job.id} is processing...`);
   }
 
   @OnWorkerEvent("active")

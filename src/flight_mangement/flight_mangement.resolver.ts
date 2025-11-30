@@ -22,7 +22,9 @@ import { InjectDataSource } from "@nestjs/typeorm";
 import { DataSource } from "typeorm";
 import DataLoader from "dataloader";
 import { BookingsLoader } from "@core/loaders/flight-bookings.loader";
-import { sout } from "users/users.service";
+
+import { action } from "@core/enums/permissions.action";
+import { userFlightLoader } from "@core/loaders/user-flights.loader";
 
 @Resolver(() => FlightEntity)
 export class FlightMangementResolver {
@@ -34,6 +36,7 @@ export class FlightMangementResolver {
     @InjectDataSource() private dataSource: DataSource
   ) {
     this.flightBookingsLoaderInstance = BookingsLoader(this.dataSource);
+
   }
 
   @Mutation(() => FlightEntity, { name: "createFlight" })
@@ -66,7 +69,7 @@ export class FlightMangementResolver {
   ): Promise<FlightEntity | null> {
     return this.flightMangementService.findOne(id);
   }
-  @PermissionsD("admin", "super_admin")
+  @PermissionsD(action.super_admin)
   @UseGuards(AuthGuard, PermissionsGuard)
   @Mutation(() => FlightEntity)
   updateFlightMangement(
@@ -84,12 +87,12 @@ export class FlightMangementResolver {
   @ResolveField(() => [Booking], { nullable: true })
   async bookings(@Parent() flight: FlightEntity): Promise<Booking[]> {
     const ids = flight.id;
-    sout("books:====== " + ids);
+
     return await this.flightBookingsLoaderInstance.load(ids);
   }
   @ResolveField(() => FlightEntity, { nullable: true })
   async assigned(@Parent() flight: FlightEntity): Promise<FlightEntity | null> {
-    sout("books:===++++++=== " + JSON.stringify(flight));
+
     if (!flight.assigned || !flight.assigned.id) {
       return null;
     }

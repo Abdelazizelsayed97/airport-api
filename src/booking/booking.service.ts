@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException, Scope } from "@nestjs/common";
 import { CreateBookInput } from "./dto/create-book.input";
 import { UpdateBookInput } from "./dto/update-book.input";
 import { Booking } from "./entities/book.entity";
@@ -11,7 +11,9 @@ import { FlightMangementService } from "../flight_mangement/flight_mangement.ser
 import PaginationInput from "../pagination/pagination.dto";
 import { flight_status } from "@core/enums/flight.status";
 
-@Injectable()
+@Injectable({
+  scope: Scope.REQUEST,
+})
 export class BookingService {
   constructor(
     @InjectRepository(Booking) private bookRepository: Repository<Booking>,

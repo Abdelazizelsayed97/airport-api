@@ -1,4 +1,4 @@
-import { Injectable, UseGuards } from "@nestjs/common";
+import { Injectable, Scope, UseGuards } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository, Timestamp } from "typeorm";
 import { User } from "./entities/user.entity";
@@ -14,10 +14,11 @@ import { action } from "@core/enums/permissions.action";
 import { PermissionsD } from "permissions/decorators/permissions.decorator";
 import { EmailService } from "email/email.service";
 import { FcmService } from "fcm/fcm.service";
-import DataLoader from "dataloader";
 import { PermissionsGuard } from "permissions/guard/permissions.guard";
 
-@Injectable()
+@Injectable({
+  // scope: Scope.REQUEST,
+})
 export class UserService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
@@ -46,10 +47,9 @@ export class UserService {
     });
 
     user.token = await this.generateToken(user.id);
-    // await this.firebaseServices.sendNotification(user);
-    sout("reavhed here");
+
     const code = await this.sendNotificationToNewUserWithVerificationCode(user);
-    sout("reavhed here");
+
     user.verificationCode = code;
 
     await this.userRepository.save(user);
@@ -151,13 +151,13 @@ export class UserService {
   }
   private async sendNotificationToNewUserWithVerificationCode(user: User) {
     const codde = Math.floor(100000 + Math.random() * 900000).toString();
-    sout("reavhed here 2");
+
     await this.emailService.sendVerificationEmail(user, codde);
-    sout("reavhed here 3");
+
     return codde;
   }
 }
 
-export function sout(parm: any) {
-  console.log(parm);
-}
+// export function sout(parm: any) {
+//   console.log(parm);
+// }

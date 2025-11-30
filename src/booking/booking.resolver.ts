@@ -14,7 +14,7 @@ import { UseGuards } from "@nestjs/common";
 import { Roles } from "../auth/decorators/auth.decorator";
 import { AuthGuard } from "../auth/guard/auth.guard";
 import PaginationInput from "../pagination/pagination.dto";
-import { sout } from "../users/users.service";
+
 import { UsersRoles } from "@core/enums/user.roles";
 import DataLoader from "dataloader";
 import { User } from "../users/entities/user.entity";
@@ -40,7 +40,7 @@ export class BookingResolver {
   async createBook(
     @Args("createBookInput") createBookInput: CreateBookInput
   ): Promise<Booking> {
-    sout(createBookInput.userId);
+
 
     return this.bookService.create(createBookInput);
   }
@@ -75,7 +75,7 @@ export class BookingResolver {
 
   @ResolveField(() => User)
   async user(@Parent() book: Booking) {
-    sout("book: " + JSON.stringify(book));
+
     return this.dataSource
       .getRepository(User)
       .createQueryBuilder("user")

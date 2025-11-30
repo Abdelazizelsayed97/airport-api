@@ -4,13 +4,13 @@ import {
   Index,
   JoinColumn,
   OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Field, Int, ObjectType, GraphQLTimestamp } from "@nestjs/graphql";
 import { flight_status } from "../../core/enums/flight.status";
 import { FlightStaff } from "fight_staff/entities/fight_staff.entity";
 import { Booking } from "../../booking/entities/book.entity";
+
 
 @ObjectType()
 @Entity()
@@ -49,7 +49,7 @@ export default class FlightEntity {
   available_seats: number;
 
   @Field(() => Int, { nullable: true })
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: 0 })
   takenSeats?: number;
 
   @Field(() => flight_status, { nullable: true })
@@ -60,12 +60,12 @@ export default class FlightEntity {
   @OneToMany(() => FlightStaff, (flightStaff) => flightStaff.flight, {
     nullable: true,
   })
-    
   @JoinColumn()
   assigned: FlightStaff;
 
   @Field(() => [Booking], { nullable: true })
-  @OneToMany(() => Booking, (book) => book.flight?.id, { nullable: true })
+  @OneToMany(() => Booking, (book) => book.flight, { nullable: true })
+  @JoinColumn()
   bookings?: Booking[];
   @Field(() => Date)
   @Column({ nullable: true })
@@ -73,4 +73,13 @@ export default class FlightEntity {
   @Field(() => Date)
   @Column({ nullable: true })
   updatedAt: Date;
+
+  cal() {
+
+    this.takenSeats = this.bookings?.length;
+    this.available_seats = 350 - this.takenSeats!;
+    if (this.available_seats === 0) {
+      this.available_seats = 0;
+    }
+  }
 }

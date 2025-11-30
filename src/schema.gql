@@ -13,7 +13,7 @@ type Booking {
   flight: FlightEntity
   id: String!
   seatNumber: String!
-  updatedAt: DateTime!
+  updatedAt: DateTime
   user: User!
 }
 
@@ -144,6 +144,7 @@ type Mutation {
   updateFlightMangement(updateFlightMangementInput: UpdateFlightMangementInput!): FlightEntity!
   updateNotifcation(updateNotifcationInput: UpdateNotifcationInput!): Notifcation!
   updateUser(updateUserInput: UpdateUserInput!): User!
+  uploadFiles(files: Upload!): String!
 }
 
 type Notifcation {
@@ -290,6 +291,9 @@ input UpdateUserInput {
   password: String
   role: UsersRoles
 }
+
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload
 
 type User {
   bookingList: [Booking!]

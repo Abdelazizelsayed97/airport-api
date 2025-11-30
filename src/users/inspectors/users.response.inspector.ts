@@ -3,10 +3,9 @@ import {
   NestInterceptor,
   ExecutionContext,
   CallHandler,
-} from '@nestjs/common';
-import { GqlExecutionContext } from '@nestjs/graphql';
-import { Observable, tap } from 'rxjs';
-import { sout } from 'users/users.service';
+} from "@nestjs/common";
+import { GqlExecutionContext } from "@nestjs/graphql";
+import { Observable, tap } from "rxjs";
 
 @Injectable()
 export class GraphqlResponseInspector implements NestInterceptor {
@@ -14,7 +13,6 @@ export class GraphqlResponseInspector implements NestInterceptor {
     const gqlCtx = GqlExecutionContext.create(context);
     const ctx = gqlCtx.getContext();
     const user = ctx.user;
-    sout(`this is user from gr inspector ${ctx.headers}`);
 
     const operationName = gqlCtx.getInfo().fieldName;
     const variables = gqlCtx.getArgs();
@@ -25,7 +23,7 @@ export class GraphqlResponseInspector implements NestInterceptor {
       tap((response) => {
         const duration = Date.now() - start;
         console.log(`🛰️ GraphQL Response Inspector:
-         User: ${user?.email || 'Guest'}
+         User: ${user?.email || "Guest"}
          Operation: ${operationName}
          Duration: ${duration}ms
          Variables: ${JSON.stringify(variables)}
@@ -33,7 +31,7 @@ export class GraphqlResponseInspector implements NestInterceptor {
          `);
         const { password, token, ...userr } = response;
         return userr;
-      }),
+      })
     );
   }
 }

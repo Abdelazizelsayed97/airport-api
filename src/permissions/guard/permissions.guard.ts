@@ -12,7 +12,7 @@ export class PermissionsGuard implements CanActivate {
     const ctx = gqlCtx.getContext();
     const user: User = ctx.req.user;
 
-    console.log("this is permissions guard " + user);
+    console.log("this is permissions guard " + JSON.stringify(user));
 
     const requiredPermissions = this.reflector.getAllAndOverride<string[]>(
       permission_key,

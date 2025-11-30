@@ -1,11 +1,19 @@
-'use strict';
-require('dotenv').config({
-  path: '/Volumes/Data/backend projects/airport-api/.env',
+"use strict";
+require("dotenv").config({
+  path: "/Volumes/Data/backend projects/airport-api/.env",
 });
 
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { NestFactory } from "@nestjs/core";
+import { AppModule } from "./app.module";
+
+
+import { ValidationPipe } from "@nestjs/common";
+import { graphqlUploadExpress } from "graphql-upload-ts";
+
+
+
+
+
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -14,12 +22,18 @@ async function bootstrap() {
     credentials: true,
   });
 
+  app.use(
+    "/graphql",
+    graphqlUploadExpress({ maxFileSize: 50000000, maxFiles: 10 ,})
+  );
   app.useGlobalPipes(
     new ValidationPipe({
       always: true,
-    }),
+    })
   );
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(3000);
 }
 bootstrap();
+
+

@@ -25,7 +25,7 @@ export class Booking {
   @Field(() => Date)
   @Column({ nullable: true })
   createdAt?: Date;
-  @Field(() => Date)
+  @Field(() => Date, { nullable: true })
   @Column({ nullable: true })
-  updatedAt: Date;
+  updatedAt?: Date;
 }
